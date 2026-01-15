@@ -7,9 +7,9 @@ import { formatYen } from '../lib/format';
 
 interface ResultSummaryProps {
   activeTab: number;
-  accumulationResult: AccumulationResult | null;
-  withdrawalResult: WithdrawalResult | null;
-  incomeResult: IncomeResult | null;
+  accumulationResult: AccumulationResult;
+  withdrawalResult: WithdrawalResult;
+  incomeResult: IncomeResult;
 }
 
 export default function ResultSummary({
@@ -18,7 +18,7 @@ export default function ResultSummary({
   withdrawalResult,
   incomeResult,
 }: ResultSummaryProps) {
-  if (activeTab === 0 && accumulationResult) {
+  if (activeTab === 0) {
     return (
       <div style={styles.container}>
         <h3 style={styles.heading}>積立結果</h3>
@@ -46,7 +46,7 @@ export default function ResultSummary({
     );
   }
 
-  if (activeTab === 1 && withdrawalResult) {
+  if (activeTab === 1) {
     return (
       <div style={styles.container}>
         <h3 style={styles.heading}>取り崩し結果</h3>
@@ -62,7 +62,7 @@ export default function ResultSummary({
     );
   }
 
-  if (activeTab === 2 && incomeResult && withdrawalResult) {
+  if (activeTab === 2) {
     return (
       <div style={styles.container}>
         <h3 style={styles.heading}>老後の月収</h3>

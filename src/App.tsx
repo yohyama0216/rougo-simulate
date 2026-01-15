@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import Tabs from './components/Tabs';
 import FormAccumulation from './components/FormAccumulation';
 import FormWithdrawal from './components/FormWithdrawal';
@@ -42,42 +42,34 @@ function App() {
     pension: 150000,
   });
 
-  // Results
-  const [accumulationResult, setAccumulationResult] =
-    useState<AccumulationResult | null>(null);
-  const [withdrawalResult, setWithdrawalResult] =
-    useState<WithdrawalResult | null>(null);
-  const [incomeResult, setIncomeResult] = useState<IncomeResult | null>(null);
-
-  // Calculate accumulation result
-  useEffect(() => {
-    const result = simulateAccumulation(accumulationParams);
-    setAccumulationResult(result);
-
-    // Auto-sync retirement asset if it's still at default
-    if (withdrawalParams.retirementAsset === 0) {
-      setWithdrawalParams((prev) => ({
-        ...prev,
-        retirementAsset: result.finalAsset,
-      }));
-    }
+  // Calculate accumulation result using useMemo
+  const accumulationResult: AccumulationResult = useMemo(() => {
+    return simulateAccumulation(accumulationParams);
   }, [accumulationParams]);
 
-  // Calculate withdrawal result
-  useEffect(() => {
-    const result = simulateWithdrawal(withdrawalParams);
-    setWithdrawalResult(result);
-  }, [withdrawalParams]);
-
-  // Calculate income result
-  useEffect(() => {
-    if (withdrawalResult) {
-      setIncomeResult({
-        totalMonthlyIncome:
-          incomeParams.pension + withdrawalResult.monthlyWithdrawal,
-      });
+  // Update withdrawal params when accumulation result changes (only if retirement asset is 0)
+  const effectiveWithdrawalParams = useMemo(() => {
+    if (withdrawalParams.retirementAsset === 0) {
+      return {
+        ...withdrawalParams,
+        retirementAsset: accumulationResult.finalAsset,
+      };
     }
-  }, [incomeParams, withdrawalResult]);
+    return withdrawalParams;
+  }, [withdrawalParams, accumulationResult.finalAsset]);
+
+  // Calculate withdrawal result using useMemo
+  const withdrawalResult: WithdrawalResult = useMemo(() => {
+    return simulateWithdrawal(effectiveWithdrawalParams);
+  }, [effectiveWithdrawalParams]);
+
+  // Calculate income result using useMemo
+  const incomeResult: IncomeResult = useMemo(() => {
+    return {
+      totalMonthlyIncome:
+        incomeParams.pension + withdrawalResult.monthlyWithdrawal,
+    };
+  }, [incomeParams, withdrawalResult.monthlyWithdrawal]);
 
   return (
     <div style={styles.container}>
@@ -103,13 +95,11 @@ function App() {
               withdrawalResult={withdrawalResult}
               incomeResult={incomeResult}
             />
-            {accumulationResult && (
-              <TableYearly
-                activeTab={activeTab}
-                accumulationData={accumulationResult.yearlyData}
-                withdrawalData={[]}
-              />
-            )}
+            <TableYearly
+              activeTab={activeTab}
+              accumulationData={accumulationResult.yearlyData}
+              withdrawalData={[]}
+            />
           </>
         )}
 
@@ -118,9 +108,7 @@ function App() {
             <FormWithdrawal
               params={withdrawalParams}
               onChange={setWithdrawalParams}
-              suggestedRetirementAsset={
-                accumulationResult?.finalAsset || 0
-              }
+              suggestedRetirementAsset={accumulationResult.finalAsset}
             />
             <ResultSummary
               activeTab={activeTab}
@@ -128,13 +116,11 @@ function App() {
               withdrawalResult={withdrawalResult}
               incomeResult={incomeResult}
             />
-            {withdrawalResult && (
-              <TableYearly
-                activeTab={activeTab}
-                accumulationData={[]}
-                withdrawalData={withdrawalResult.yearlyData}
-              />
-            )}
+            <TableYearly
+              activeTab={activeTab}
+              accumulationData={[]}
+              withdrawalData={withdrawalResult.yearlyData}
+            />
           </>
         )}
 
@@ -159,10 +145,9 @@ function App() {
                 <span>取り崩し（月額）:</span>
                 <span style={styles.breakdownValue}>
                   ¥
-                  {(withdrawalResult?.monthlyWithdrawal || 0).toLocaleString(
-                    'ja-JP',
-                    { maximumFractionDigits: 0 }
-                  )}
+                  {withdrawalResult.monthlyWithdrawal.toLocaleString('ja-JP', {
+                    maximumFractionDigits: 0,
+                  })}
                 </span>
               </div>
             </div>
