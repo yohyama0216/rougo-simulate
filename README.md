@@ -1,73 +1,61 @@
-# React + TypeScript + Vite
+# rougo-simulate
+老後資金の計算
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## NISA積立＋老後取り崩し＋老後月収シミュレーター
 
-Currently, two official plugins are available:
+このウェブアプリケーションは、NISA積立シミュレーション、老後資金の取り崩しシミュレーション、および老後の月収計算を行うツールです。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 機能
 
-## React Compiler
+1. **積立（NISA）シミュレーション**
+   - 初期資産、毎月積立額、積立期間、想定利回り、年間コストを入力
+   - 最終資産、元本合計、運用益を計算
+   - 年別の資産推移を表示
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+2. **取り崩しシミュレーション**
+   - 退職時資産、取り崩し開始・終了年齢、退職後想定利回りを入力
+   - 枯渇しない月額取り崩し額を計算
+   - 年別の残高推移を表示
 
-## Expanding the ESLint configuration
+3. **老後の月収**
+   - 公的年金（月額）を入力
+   - 年金 + 取り崩しの合計月収を表示
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 技術スタック
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Vite
+- React 19
+- TypeScript
+- GitHub Pages（デプロイ）
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### ローカル開発
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# 依存関係のインストール
+npm install
+
+# 開発サーバーの起動
+npm run dev
+
+# ビルド
+npm run build
+
+# リント
+npm run lint
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### デプロイ
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+GitHub Pagesに自動デプロイされます。mainブランチにpushすると、GitHub Actionsが自動的にビルドしてデプロイします。
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### 計算方法
+
+- **月次計算**: すべての計算は月次ベースで行われます
+- **月利換算**: 年率 r の月利 = (1 + r)^(1/12) - 1
+- **積立**: 残高 = 残高 × (1 + 月利) + 毎月積立
+- **取り崩し**: 年金現価係数を使用して枯渇しない月額を計算
+
+### 注意事項
+
+このシミュレーターは参考値です。実際の運用成果を保証するものではありません。
+
