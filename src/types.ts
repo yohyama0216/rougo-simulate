@@ -4,6 +4,9 @@ export interface AccumulationParams {
   years: number;
   annualReturn: number; // %
   annualCost: number; // %
+  // Inflation
+  considerInflation: boolean;
+  inflationRate: number; // %
   // Housing loan
   hasHousingLoan: boolean;
   housingLoanAmount: number;
@@ -31,6 +34,9 @@ export interface WithdrawalParams {
   startAge: number;
   endAge: number;
   annualReturn: number; // %
+  // Inflation
+  considerInflation: boolean;
+  inflationRate: number; // %
   // Elder care expenses
   hasElderCare: boolean;
   elderCareMonthly: number; // Monthly elder care cost

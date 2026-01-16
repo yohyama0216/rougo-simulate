@@ -54,6 +54,8 @@ export function simulateAccumulation(
     years,
     annualReturn,
     annualCost,
+    considerInflation,
+    inflationRate,
     hasHousingLoan,
     housingLoanAmount,
     housingLoanInterestRate,
@@ -62,7 +64,15 @@ export function simulateAccumulation(
   } = params;
 
   // Calculate net annual return
-  const netAnnualReturn = annualReturn - annualCost;
+  let netAnnualReturn = annualReturn - annualCost;
+  
+  // If considering inflation, adjust for real return
+  if (considerInflation) {
+    // Real return = (1 + nominal) / (1 + inflation) - 1
+    // Approximation: real ≈ nominal - inflation
+    netAnnualReturn = netAnnualReturn - inflationRate;
+  }
+  
   const monthlyRate = annualToMonthlyRate(netAnnualReturn);
   const totalMonths = years * 12;
 
@@ -120,7 +130,7 @@ export function simulateAccumulation(
 
 /**
  * Calculate safe monthly withdrawal amount that won't deplete assets
- * Uses present value of annuity formula, accounting for elder care expenses
+ * Uses present value of annuity formula, accounting for elder care expenses and inflation
  */
 export function calcSafeWithdrawalMonthly(
   params: WithdrawalParams
@@ -130,6 +140,8 @@ export function calcSafeWithdrawalMonthly(
     startAge,
     endAge,
     annualReturn,
+    considerInflation,
+    inflationRate,
     hasElderCare,
     elderCareMonthly,
     elderCareStartAge,
@@ -138,16 +150,23 @@ export function calcSafeWithdrawalMonthly(
   const years = endAge - startAge;
   const totalMonths = years * 12;
   const monthlyRate = annualToMonthlyRate(annualReturn);
+  const monthlyInflation = considerInflation ? annualToMonthlyRate(inflationRate) : 0;
 
   if (totalMonths <= 0) return 0;
 
+  // If considering inflation, calculate real return rate
+  // For inflation-adjusted withdrawal, we need to use real return
+  const realMonthlyRate = considerInflation
+    ? (1 + monthlyRate) / (1 + monthlyInflation) - 1
+    : monthlyRate;
+
   // If no elder care, use simple calculation
   if (!hasElderCare) {
-    if (monthlyRate === 0) {
+    if (realMonthlyRate === 0) {
       return retirementAsset / totalMonths;
     }
     const pvFactor =
-      (1 - Math.pow(1 + monthlyRate, -totalMonths)) / monthlyRate;
+      (1 - Math.pow(1 + realMonthlyRate, -totalMonths)) / realMonthlyRate;
     return retirementAsset / pvFactor;
   }
 
@@ -156,7 +175,7 @@ export function calcSafeWithdrawalMonthly(
   const careStartMonth = Math.max(0, (elderCareStartAge - startAge) * 12);
   const careMonths = Math.max(0, totalMonths - careStartMonth);
 
-  if (monthlyRate === 0) {
+  if (realMonthlyRate === 0) {
     // No interest case: simple calculation
     const totalCareExpenses = elderCareMonthly * careMonths;
     const availableForWithdrawal = retirementAsset - totalCareExpenses;
@@ -166,9 +185,9 @@ export function calcSafeWithdrawalMonthly(
   // Calculate PV of elder care expenses
   let pvElderCare = 0;
   if (careMonths > 0) {
-    const discountFactor = Math.pow(1 + monthlyRate, careStartMonth);
+    const discountFactor = Math.pow(1 + realMonthlyRate, careStartMonth);
     const carePvFactor =
-      (1 - Math.pow(1 + monthlyRate, -careMonths)) / monthlyRate;
+      (1 - Math.pow(1 + realMonthlyRate, -careMonths)) / realMonthlyRate;
     pvElderCare = (elderCareMonthly * carePvFactor) / discountFactor;
   }
 
@@ -177,12 +196,12 @@ export function calcSafeWithdrawalMonthly(
 
   if (availableAsset <= 0) return 0;
 
-  const pvFactor = (1 - Math.pow(1 + monthlyRate, -totalMonths)) / monthlyRate;
+  const pvFactor = (1 - Math.pow(1 + realMonthlyRate, -totalMonths)) / realMonthlyRate;
   return availableAsset / pvFactor;
 }
 
 /**
- * Simulate withdrawal with yearly breakdown and elder care
+ * Simulate withdrawal with yearly breakdown, elder care, and inflation adjustment
  */
 export function simulateWithdrawal(
   params: WithdrawalParams
@@ -192,6 +211,8 @@ export function simulateWithdrawal(
     startAge,
     endAge,
     annualReturn,
+    considerInflation,
+    inflationRate,
     hasElderCare,
     elderCareMonthly,
     elderCareStartAge,
@@ -199,9 +220,11 @@ export function simulateWithdrawal(
 
   const monthlyWithdrawal = calcSafeWithdrawalMonthly(params);
   const monthlyRate = annualToMonthlyRate(annualReturn);
+  const monthlyInflation = considerInflation ? annualToMonthlyRate(inflationRate) : 0;
   const years = endAge - startAge;
 
   let balance = retirementAsset;
+  let currentMonthlyWithdrawal = monthlyWithdrawal;
   const yearlyData: WithdrawalYearlyData[] = [];
 
   for (let year = 0; year < years; year++) {
@@ -214,13 +237,18 @@ export function simulateWithdrawal(
 
     // Process 12 months
     for (let month = 0; month < 12; month++) {
-      balance = balance * (1 + monthlyRate) - monthlyWithdrawal;
-      yearlyWithdrawal += monthlyWithdrawal;
+      balance = balance * (1 + monthlyRate) - currentMonthlyWithdrawal;
+      yearlyWithdrawal += currentMonthlyWithdrawal;
 
       // Deduct elder care expenses if applicable
       if (isElderCareActive) {
         balance -= elderCareMonthly;
         yearlyWithdrawal += elderCareMonthly;
+      }
+      
+      // Apply monthly inflation to withdrawal amount
+      if (considerInflation && month < 11) {
+        currentMonthlyWithdrawal *= (1 + monthlyInflation);
       }
     }
 

@@ -94,6 +94,38 @@ export default function FormAccumulation({
             <input
               className="form-check-input"
               type="checkbox"
+              id="considerInflation"
+              checked={params.considerInflation}
+              onChange={(e) => handleChange('considerInflation', e.target.checked)}
+            />
+            <label className="form-check-label fw-semibold" htmlFor="considerInflation">
+              インフレ率を考慮する
+            </label>
+          </div>
+
+          {params.considerInflation && (
+            <div className="mb-3">
+              <label className="form-label">インフレ率（年率%）</label>
+              <input
+                type="number"
+                className="form-control"
+                value={params.inflationRate}
+                onChange={(e) => handleChange('inflationRate', e.target.value)}
+                min="0"
+                step="0.1"
+              />
+              <small className="form-text text-muted">
+                実質利回り = 名目利回り - インフレ率
+              </small>
+            </div>
+          )}
+        </div>
+
+        <div className="border-top pt-3 mt-4">
+          <div className="form-check mb-3">
+            <input
+              className="form-check-input"
+              type="checkbox"
               id="hasHousingLoan"
               checked={params.hasHousingLoan}
               onChange={(e) => handleChange('hasHousingLoan', e.target.checked)}

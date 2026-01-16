@@ -102,6 +102,38 @@ export default function FormWithdrawal({
             <input
               className="form-check-input"
               type="checkbox"
+              id="considerInflationWithdrawal"
+              checked={params.considerInflation}
+              onChange={(e) => handleChange('considerInflation', e.target.checked)}
+            />
+            <label className="form-check-label fw-semibold" htmlFor="considerInflationWithdrawal">
+              インフレ率を考慮する
+            </label>
+          </div>
+
+          {params.considerInflation && (
+            <div className="mb-3">
+              <label className="form-label">インフレ率（年率%）</label>
+              <input
+                type="number"
+                className="form-control"
+                value={params.inflationRate}
+                onChange={(e) => handleChange('inflationRate', e.target.value)}
+                min="0"
+                step="0.1"
+              />
+              <small className="form-text text-muted">
+                毎年の取り崩し額がインフレ率に応じて増加します
+              </small>
+            </div>
+          )}
+        </div>
+
+        <div className="border-top pt-3 mt-4">
+          <div className="form-check mb-3">
+            <input
+              className="form-check-input"
+              type="checkbox"
               id="hasElderCare"
               checked={params.hasElderCare}
               onChange={(e) => handleChange('hasElderCare', e.target.checked)}
