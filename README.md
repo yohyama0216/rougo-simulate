@@ -183,7 +183,33 @@ npm run lint
 
 ## デプロイ
 
-GitHub Pagesに自動デプロイされます。`main`ブランチにpushすると、GitHub Actionsが自動的にビルドしてデプロイします。
+### GitHub Pagesへのデプロイ
+
+このプロジェクトは GitHub Pages に自動デプロイされます。
+
+#### 初回セットアップ（リポジトリ管理者向け）
+
+GitHub Pages を有効にするには、以下の手順を実行してください：
+
+1. リポジトリの **Settings** → **Pages** に移動
+2. "Build and deployment" セクションで：
+   - **Source**: "GitHub Actions" を選択
+3. 設定を保存
+
+#### 自動デプロイの仕組み
+
+- `main` ブランチに push すると、GitHub Actions が自動的に実行されます
+- ワークフローは以下を実行します：
+  1. 依存関係のインストール（`npm ci`）
+  2. プロジェクトのビルド（`npm run build`）
+  3. GitHub Pages への自動デプロイ
+- デプロイ先: `https://yohyama0216.github.io/rougo-simulate/`
+
+#### トラブルシューティング
+
+**エラー: "Failed to create deployment (status: 404)"**
+
+このエラーが表示される場合、GitHub Pages が有効になっていない可能性があります。上記の初回セットアップ手順を実行してください。
 
 ---
 

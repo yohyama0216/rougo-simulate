@@ -1,5 +1,9 @@
 name: Deploy to GitHub Pages
 
+# This workflow deploys the built application to GitHub Pages
+# IMPORTANT: GitHub Pages must be enabled in repository settings
+# Go to Settings → Pages and set source to "GitHub Actions"
+
 on:
   push:
     branches:
