@@ -26,6 +26,11 @@ function App() {
       years: 20,
       annualReturn: 5.0,
       annualCost: 0.2,
+      hasHousingLoan: false,
+      housingLoanAmount: 30000000,
+      housingLoanInterestRate: 1.5,
+      housingLoanYears: 35,
+      housingLoanStartYear: 1,
     });
 
   // Withdrawal state
@@ -34,6 +39,10 @@ function App() {
     startAge: 65,
     endAge: 95,
     annualReturn: 3.0,
+    hasElderCare: false,
+    elderCareMonthly: 100000,
+    elderCareStartAge: 75,
+    elderCareRecipient: 'none',
   });
 
   // Income state

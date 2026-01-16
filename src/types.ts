@@ -4,6 +4,12 @@ export interface AccumulationParams {
   years: number;
   annualReturn: number; // %
   annualCost: number; // %
+  // Housing loan
+  hasHousingLoan: boolean;
+  housingLoanAmount: number;
+  housingLoanInterestRate: number; // %
+  housingLoanYears: number;
+  housingLoanStartYear: number; // Year when loan starts (1-based)
 }
 
 export interface AccumulationResult {
@@ -25,6 +31,11 @@ export interface WithdrawalParams {
   startAge: number;
   endAge: number;
   annualReturn: number; // %
+  // Elder care expenses
+  hasElderCare: boolean;
+  elderCareMonthly: number; // Monthly elder care cost
+  elderCareStartAge: number; // Age when care starts
+  elderCareRecipient: 'husband' | 'wife' | 'none'; // Who needs care
 }
 
 export interface WithdrawalResult {

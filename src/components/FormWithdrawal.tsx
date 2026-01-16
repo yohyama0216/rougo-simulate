@@ -12,12 +12,24 @@ export default function FormWithdrawal({
   onChange,
   suggestedRetirementAsset,
 }: FormWithdrawalProps) {
-  const handleChange = (field: keyof WithdrawalParams, value: string) => {
-    const numValue = parseFloat(value) || 0;
-    onChange({
-      ...params,
-      [field]: Math.max(0, numValue),
-    });
+  const handleChange = (field: keyof WithdrawalParams, value: string | boolean) => {
+    if (typeof value === 'boolean') {
+      onChange({
+        ...params,
+        [field]: value,
+      });
+    } else if (field === 'elderCareRecipient') {
+      onChange({
+        ...params,
+        [field]: value as 'husband' | 'wife' | 'none',
+      });
+    } else {
+      const numValue = parseFloat(value) || 0;
+      onChange({
+        ...params,
+        [field]: Math.max(0, numValue),
+      });
+    }
   };
 
   const useSuggested = () => {
@@ -29,7 +41,7 @@ export default function FormWithdrawal({
 
   return (
     <div className="row">
-      <div className="col-lg-8 col-xl-6">
+      <div className="col-lg-10 col-xl-8">
         <h2 className="h4 mb-4">取り崩しシミュレーション</h2>
 
         <div className="mb-3">
@@ -83,6 +95,71 @@ export default function FormWithdrawal({
             min="0"
             step="0.1"
           />
+        </div>
+
+        <div className="border-top pt-3 mt-4">
+          <div className="form-check mb-3">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="hasElderCare"
+              checked={params.hasElderCare}
+              onChange={(e) => handleChange('hasElderCare', e.target.checked)}
+            />
+            <label className="form-check-label fw-semibold" htmlFor="hasElderCare">
+              介護費用あり（デイケア等）
+            </label>
+          </div>
+
+          {params.hasElderCare && (
+            <>
+              <div className="mb-3">
+                <label className="form-label">介護を受ける方</label>
+                <select
+                  className="form-select"
+                  value={params.elderCareRecipient}
+                  onChange={(e) => handleChange('elderCareRecipient', e.target.value)}
+                >
+                  <option value="none">選択してください</option>
+                  <option value="husband">夫</option>
+                  <option value="wife">妻</option>
+                </select>
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">月額介護費用（円）</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={params.elderCareMonthly}
+                  onChange={(e) => handleChange('elderCareMonthly', e.target.value)}
+                  min="0"
+                  step="10000"
+                />
+                <small className="form-text text-muted">
+                  デイケア、訪問介護等の費用
+                </small>
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">介護開始年齢</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={params.elderCareStartAge}
+                  onChange={(e) => handleChange('elderCareStartAge', e.target.value)}
+                  min={params.startAge}
+                  max={params.endAge}
+                  step="1"
+                />
+                <small className="form-text text-muted">
+                  {params.elderCareRecipient === 'husband' && '夫が'}
+                  {params.elderCareRecipient === 'wife' && '妻が'}
+                  介護を開始する年齢
+                </small>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

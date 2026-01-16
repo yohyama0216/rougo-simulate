@@ -9,17 +9,24 @@ export default function FormAccumulation({
   params,
   onChange,
 }: FormAccumulationProps) {
-  const handleChange = (field: keyof AccumulationParams, value: string) => {
-    const numValue = parseFloat(value) || 0;
-    onChange({
-      ...params,
-      [field]: Math.max(0, numValue),
-    });
+  const handleChange = (field: keyof AccumulationParams, value: string | boolean) => {
+    if (typeof value === 'boolean') {
+      onChange({
+        ...params,
+        [field]: value,
+      });
+    } else {
+      const numValue = parseFloat(value) || 0;
+      onChange({
+        ...params,
+        [field]: Math.max(0, numValue),
+      });
+    }
   };
 
   return (
     <div className="row">
-      <div className="col-lg-8 col-xl-6">
+      <div className="col-lg-10 col-xl-8">
         <h2 className="h4 mb-4">積立シミュレーション（NISA）</h2>
 
         <div className="mb-3">
@@ -80,6 +87,77 @@ export default function FormAccumulation({
             min="0"
             step="0.1"
           />
+        </div>
+
+        <div className="border-top pt-3 mt-4">
+          <div className="form-check mb-3">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="hasHousingLoan"
+              checked={params.hasHousingLoan}
+              onChange={(e) => handleChange('hasHousingLoan', e.target.checked)}
+            />
+            <label className="form-check-label fw-semibold" htmlFor="hasHousingLoan">
+              住宅ローンあり
+            </label>
+          </div>
+
+          {params.hasHousingLoan && (
+            <>
+              <div className="mb-3">
+                <label className="form-label">ローン借入額（円）</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={params.housingLoanAmount}
+                  onChange={(e) => handleChange('housingLoanAmount', e.target.value)}
+                  min="0"
+                  step="1000000"
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">ローン金利（年率%）</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={params.housingLoanInterestRate}
+                  onChange={(e) => handleChange('housingLoanInterestRate', e.target.value)}
+                  min="0"
+                  step="0.1"
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">ローン返済期間（年）</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={params.housingLoanYears}
+                  onChange={(e) => handleChange('housingLoanYears', e.target.value)}
+                  min="1"
+                  step="1"
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">ローン開始年（積立開始からの年数）</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={params.housingLoanStartYear}
+                  onChange={(e) => handleChange('housingLoanStartYear', e.target.value)}
+                  min="1"
+                  max={params.years}
+                  step="1"
+                />
+                <small className="form-text text-muted">
+                  積立開始から何年目にローンを開始するか
+                </small>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

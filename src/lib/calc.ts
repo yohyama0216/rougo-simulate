@@ -16,7 +16,34 @@ export function annualToMonthlyRate(annualRate: number): number {
 }
 
 /**
- * Simulate NISA accumulation
+ * Calculate monthly housing loan payment
+ * Uses standard loan amortization formula
+ */
+export function calcHousingLoanPayment(
+  loanAmount: number,
+  annualInterestRate: number,
+  years: number
+): number {
+  if (loanAmount <= 0 || years <= 0) return 0;
+  
+  const monthlyRate = annualToMonthlyRate(annualInterestRate);
+  const totalMonths = years * 12;
+  
+  if (monthlyRate === 0) {
+    // No interest case
+    return loanAmount / totalMonths;
+  }
+  
+  // Loan payment formula: PMT = P * [r(1+r)^n] / [(1+r)^n - 1]
+  const payment =
+    (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) /
+    (Math.pow(1 + monthlyRate, totalMonths) - 1);
+  
+  return payment;
+}
+
+/**
+ * Simulate NISA accumulation with housing loan
  */
 export function simulateAccumulation(
   params: AccumulationParams
@@ -27,12 +54,31 @@ export function simulateAccumulation(
     years,
     annualReturn,
     annualCost,
+    hasHousingLoan,
+    housingLoanAmount,
+    housingLoanInterestRate,
+    housingLoanYears,
+    housingLoanStartYear,
   } = params;
 
   // Calculate net annual return
   const netAnnualReturn = annualReturn - annualCost;
   const monthlyRate = annualToMonthlyRate(netAnnualReturn);
   const totalMonths = years * 12;
+
+  // Calculate housing loan payment if applicable
+  const monthlyLoanPayment = hasHousingLoan
+    ? calcHousingLoanPayment(
+        housingLoanAmount,
+        housingLoanInterestRate,
+        housingLoanYears
+      )
+    : 0;
+
+  const loanStartMonth = hasHousingLoan ? (housingLoanStartYear - 1) * 12 + 1 : 0;
+  const loanEndMonth = hasHousingLoan
+    ? loanStartMonth + housingLoanYears * 12
+    : 0;
 
   let balance = initialAsset;
   let totalContribution = initialAsset;
@@ -43,20 +89,25 @@ export function simulateAccumulation(
     balance = balance * (1 + monthlyRate) + monthlyContribution;
     totalContribution += monthlyContribution;
 
+    // Deduct housing loan payment if in loan period
+    if (hasHousingLoan && month >= loanStartMonth && month < loanEndMonth) {
+      balance -= monthlyLoanPayment;
+    }
+
     // Record yearly data
     if (month % 12 === 0) {
       const year = month / 12;
       const gain = balance - totalContribution;
       yearlyData.push({
         year,
-        asset: balance,
+        asset: Math.max(0, balance), // Ensure non-negative
         contribution: totalContribution,
         gain,
       });
     }
   }
 
-  const finalAsset = balance;
+  const finalAsset = Math.max(0, balance);
   const totalGain = finalAsset - totalContribution;
 
   return {
@@ -69,38 +120,82 @@ export function simulateAccumulation(
 
 /**
  * Calculate safe monthly withdrawal amount that won't deplete assets
- * Uses present value of annuity formula
+ * Uses present value of annuity formula, accounting for elder care expenses
  */
 export function calcSafeWithdrawalMonthly(
   params: WithdrawalParams
 ): number {
-  const { retirementAsset, startAge, endAge, annualReturn } = params;
+  const {
+    retirementAsset,
+    startAge,
+    endAge,
+    annualReturn,
+    hasElderCare,
+    elderCareMonthly,
+    elderCareStartAge,
+  } = params;
 
   const years = endAge - startAge;
   const totalMonths = years * 12;
   const monthlyRate = annualToMonthlyRate(annualReturn);
 
   if (totalMonths <= 0) return 0;
-  if (monthlyRate === 0) {
-    // No interest case: simple division
-    return retirementAsset / totalMonths;
+
+  // If no elder care, use simple calculation
+  if (!hasElderCare) {
+    if (monthlyRate === 0) {
+      return retirementAsset / totalMonths;
+    }
+    const pvFactor =
+      (1 - Math.pow(1 + monthlyRate, -totalMonths)) / monthlyRate;
+    return retirementAsset / pvFactor;
   }
 
-  // Present Value of Annuity formula: PV = PMT * [(1 - (1 + r)^-n) / r]
-  // Solving for PMT: PMT = PV / [(1 - (1 + r)^-n) / r]
-  const pvFactor = (1 - Math.pow(1 + monthlyRate, -totalMonths)) / monthlyRate;
-  const monthlyWithdrawal = retirementAsset / pvFactor;
+  // With elder care, we need to account for the additional expense
+  // Calculate available amount after reserving for elder care expenses
+  const careStartMonth = Math.max(0, (elderCareStartAge - startAge) * 12);
+  const careMonths = Math.max(0, totalMonths - careStartMonth);
 
-  return monthlyWithdrawal;
+  if (monthlyRate === 0) {
+    // No interest case: simple calculation
+    const totalCareExpenses = elderCareMonthly * careMonths;
+    const availableForWithdrawal = retirementAsset - totalCareExpenses;
+    return Math.max(0, availableForWithdrawal / totalMonths);
+  }
+
+  // Calculate PV of elder care expenses
+  let pvElderCare = 0;
+  if (careMonths > 0) {
+    const discountFactor = Math.pow(1 + monthlyRate, careStartMonth);
+    const carePvFactor =
+      (1 - Math.pow(1 + monthlyRate, -careMonths)) / monthlyRate;
+    pvElderCare = (elderCareMonthly * carePvFactor) / discountFactor;
+  }
+
+  // Available asset for regular withdrawal
+  const availableAsset = retirementAsset - pvElderCare;
+
+  if (availableAsset <= 0) return 0;
+
+  const pvFactor = (1 - Math.pow(1 + monthlyRate, -totalMonths)) / monthlyRate;
+  return availableAsset / pvFactor;
 }
 
 /**
- * Simulate withdrawal with yearly breakdown
+ * Simulate withdrawal with yearly breakdown and elder care
  */
 export function simulateWithdrawal(
   params: WithdrawalParams
 ): WithdrawalResult {
-  const { retirementAsset, startAge, endAge, annualReturn } = params;
+  const {
+    retirementAsset,
+    startAge,
+    endAge,
+    annualReturn,
+    hasElderCare,
+    elderCareMonthly,
+    elderCareStartAge,
+  } = params;
 
   const monthlyWithdrawal = calcSafeWithdrawalMonthly(params);
   const monthlyRate = annualToMonthlyRate(annualReturn);
@@ -114,10 +209,19 @@ export function simulateWithdrawal(
     const age = startAge + year;
     let yearlyWithdrawal = 0;
 
+    // Check if elder care applies this year
+    const isElderCareActive = hasElderCare && age >= elderCareStartAge;
+
     // Process 12 months
     for (let month = 0; month < 12; month++) {
       balance = balance * (1 + monthlyRate) - monthlyWithdrawal;
       yearlyWithdrawal += monthlyWithdrawal;
+
+      // Deduct elder care expenses if applicable
+      if (isElderCareActive) {
+        balance -= elderCareMonthly;
+        yearlyWithdrawal += elderCareMonthly;
+      }
     }
 
     yearlyData.push({
@@ -125,7 +229,7 @@ export function simulateWithdrawal(
       age,
       startBalance,
       withdrawal: yearlyWithdrawal,
-      endBalance: balance,
+      endBalance: Math.max(0, balance),
     });
   }
 
