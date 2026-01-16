@@ -59,10 +59,10 @@ export default function FormIncome({ params, onChange }: FormIncomeProps) {
   return (
     <div className="row">
       <div className="col-12">
-        <h2 className="h5 mb-3">老後の月収</h2>
+        <h2 className="h5 mb-2">老後の月収</h2>
 
-        <div className="row g-2 mb-3">
-          <div className="col-md-6">
+        <div className="row g-1 mb-2">
+          <div className="col-md-4">
             <label className="form-label fw-semibold">世帯タイプ</label>
             <select
               className="form-select form-select-sm"
@@ -76,7 +76,20 @@ export default function FormIncome({ params, onChange }: FormIncomeProps) {
             </select>
           </div>
 
-          <div className="col-md-6">
+          <div className="col-md-4">
+            <label className="form-label fw-semibold">年金開始年齢</label>
+            <input
+              type="number"
+              className="form-control form-control-sm"
+              value={params.pensionStartAge}
+              onChange={(e) => handleChange('pensionStartAge', e.target.value)}
+              min="60"
+              max="75"
+              step="1"
+            />
+          </div>
+
+          <div className="col-md-4">
             <label className="form-label fw-semibold">年金の入力方法</label>
             <select
               className="form-select form-select-sm"
@@ -90,7 +103,7 @@ export default function FormIncome({ params, onChange }: FormIncomeProps) {
         </div>
 
         {params.pensionInputMode === 'manual' ? (
-          <div className="row g-2">
+          <div className="row g-1">
             <div className={params.householdType === 'single' ? 'col-12' : 'col-md-6'}>
               <label className="form-label fw-semibold">夫の年金（月額、円）</label>
               <input
@@ -129,12 +142,12 @@ export default function FormIncome({ params, onChange }: FormIncomeProps) {
         ) : (
           <>
             {/* Husband's income inputs */}
-            <div className="card mb-2">
-              <div className="card-header bg-light py-2">
+            <div className="card mb-1">
+              <div className="card-header bg-light py-1">
                 <h5 className="mb-0 h6">夫の情報</h5>
               </div>
-              <div className="card-body py-2">
-                <div className="row g-2">
+              <div className="card-body py-1">
+                <div className="row g-1">
                   <div className="col-md-6">
                     <label className="form-label fw-semibold">
                       平均年収（税込、円）
@@ -174,13 +187,13 @@ export default function FormIncome({ params, onChange }: FormIncomeProps) {
 
             {/* Wife's income inputs */}
             {params.householdType !== 'single' && (
-              <div className="card mb-2">
-                <div className="card-header bg-light py-2">
+              <div className="card mb-1">
+                <div className="card-header bg-light py-1">
                   <h5 className="mb-0 h6">妻の情報</h5>
                 </div>
-                <div className="card-body py-2">
+                <div className="card-body py-1">
                   {params.householdType === 'dualIncome' ? (
-                    <div className="row g-2">
+                    <div className="row g-1">
                       <div className="col-md-6">
                         <label className="form-label fw-semibold">
                           平均年収（税込、円）
@@ -239,8 +252,8 @@ export default function FormIncome({ params, onChange }: FormIncomeProps) {
             )}
 
             {/* Calculation Formula Explanation */}
-            <div className="alert alert-info py-2">
-              <h6 className="alert-heading mb-2">
+            <div className="alert alert-info py-1 mb-0">
+              <h6 className="alert-heading mb-1">
                 <i className="bi bi-info-circle"></i> 年金計算式
               </h6>
               <div className="small">

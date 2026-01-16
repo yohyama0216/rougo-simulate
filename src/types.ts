@@ -4,6 +4,9 @@ export interface AccumulationParams {
   years: number;
   annualReturn: number; // %
   annualCost: number; // %
+  // Year settings
+  currentYear: number; // Current year (西暦)
+  withdrawalStartYear: number; // Year when withdrawal starts (西暦)
   // Inflation
   considerInflation: boolean;
   inflationRate: number; // %
@@ -68,6 +71,8 @@ export type PensionInputMode = 'manual' | 'calculate';
 export interface IncomeParams {
   householdType: HouseholdType;
   pensionInputMode: PensionInputMode; // manual input or calculate from income
+  // Pension start age
+  pensionStartAge: number; // Age when pension starts (年金開始年齢)
   // Manual pension input
   husbandPension: number; // monthly - 夫の年金
   wifePension: number; // monthly - 妻の年金

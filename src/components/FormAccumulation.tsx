@@ -17,9 +17,13 @@ export default function FormAccumulation({
       });
     } else {
       const numValue = parseFloat(value) || 0;
+      // Don't apply Math.max(0) to year fields - they should accept any valid year
+      const finalValue = (field === 'currentYear' || field === 'withdrawalStartYear') 
+        ? numValue 
+        : Math.max(0, numValue);
       onChange({
         ...params,
-        [field]: Math.max(0, numValue),
+        [field]: finalValue,
       });
     }
   };
@@ -27,9 +31,37 @@ export default function FormAccumulation({
   return (
     <div className="row">
       <div className="col-12">
-        <h2 className="h5 mb-3">積立シミュレーション（NISA）</h2>
+        <h2 className="h5 mb-2">積立シミュレーション（NISA）</h2>
 
-        <div className="row g-2">
+        <div className="row g-1">
+          <div className="col-md-6">
+            <label className="form-label fw-semibold">現在の西暦</label>
+            <input
+              type="number"
+              className="form-control form-control-sm"
+              value={params.currentYear}
+              onChange={(e) => handleChange('currentYear', e.target.value)}
+              min="2020"
+              max="2100"
+              step="1"
+            />
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label fw-semibold">取り崩し開始年</label>
+            <input
+              type="number"
+              className="form-control form-control-sm"
+              value={params.withdrawalStartYear}
+              onChange={(e) => handleChange('withdrawalStartYear', e.target.value)}
+              min={params.currentYear}
+              max="2150"
+              step="1"
+            />
+          </div>
+        </div>
+
+        <div className="row g-1 mt-1">
           <div className="col-md-6">
             <label className="form-label fw-semibold">初期資産（円）</label>
             <input
@@ -59,11 +91,13 @@ export default function FormAccumulation({
             <input
               type="number"
               className="form-control form-control-sm"
-              value={params.years}
-              onChange={(e) => handleChange('years', e.target.value)}
-              min="1"
-              step="1"
+              value={Math.max(1, params.withdrawalStartYear - params.currentYear)}
+              readOnly
+              disabled
             />
+            <small className="form-text text-muted">
+              {params.currentYear}年〜{params.withdrawalStartYear}年（自動計算）
+            </small>
           </div>
 
           <div className="col-md-4">
@@ -91,8 +125,8 @@ export default function FormAccumulation({
           </div>
         </div>
 
-        <div className="border-top pt-2 mt-3">
-          <div className="form-check mb-2">
+        <div className="border-top pt-2 mt-2">
+          <div className="form-check mb-1">
             <input
               className="form-check-input"
               type="checkbox"
@@ -106,7 +140,7 @@ export default function FormAccumulation({
           </div>
 
           {params.considerInflation && (
-            <div className="mb-2">
+            <div className="mb-1">
               <label className="form-label">インフレ率（年率%）</label>
               <input
                 type="number"
@@ -123,8 +157,8 @@ export default function FormAccumulation({
           )}
         </div>
 
-        <div className="border-top pt-2 mt-3">
-          <div className="form-check mb-2">
+        <div className="border-top pt-2 mt-2">
+          <div className="form-check mb-1">
             <input
               className="form-check-input"
               type="checkbox"
@@ -138,7 +172,7 @@ export default function FormAccumulation({
           </div>
 
           {params.hasHousingLoan && (
-            <div className="row g-2">
+            <div className="row g-1">
               <div className="col-md-6">
                 <label className="form-label">ローン借入額（円）</label>
                 <input
@@ -194,8 +228,8 @@ export default function FormAccumulation({
           )}
         </div>
 
-        <div className="border-top pt-2 mt-3">
-          <div className="form-check mb-2">
+        <div className="border-top pt-2 mt-2">
+          <div className="form-check mb-1">
             <input
               className="form-check-input"
               type="checkbox"
@@ -209,7 +243,7 @@ export default function FormAccumulation({
           </div>
 
           {params.hasNisaWithdrawal && (
-            <div className="row g-2">
+            <div className="row g-1">
               <div className="col-md-6">
                 <label className="form-label">毎月の取り崩し額（円/月）</label>
                 <input

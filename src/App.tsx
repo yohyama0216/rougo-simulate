@@ -25,6 +25,8 @@ function App() {
       years: 20,
       annualReturn: 5.0,
       annualCost: 0.2,
+      currentYear: new Date().getFullYear(), // Current year
+      withdrawalStartYear: new Date().getFullYear() + 20, // Default to 20 years from now
       considerInflation: false,
       inflationRate: 2.0,
       hasHousingLoan: false,
@@ -39,7 +41,12 @@ function App() {
 
   // Calculate accumulation result using useMemo
   const accumulationResult: AccumulationResult = useMemo(() => {
-    return simulateAccumulation(accumulationParams);
+    // Calculate years from the year difference
+    const calculatedYears = Math.max(1, accumulationParams.withdrawalStartYear - accumulationParams.currentYear);
+    return simulateAccumulation({
+      ...accumulationParams,
+      years: calculatedYears,
+    });
   }, [accumulationParams]);
 
   // Withdrawal params (uses accumulation result)
@@ -65,6 +72,7 @@ function App() {
   const [incomeParams, setIncomeParams] = useState<IncomeParams>({
     householdType: 'single',
     pensionInputMode: 'manual',
+    pensionStartAge: 65, // Default pension start age
     husbandPension: 150000,
     wifePension: 0,
     husbandAnnualSalary: 5000000, // Default: 5 million yen
@@ -122,17 +130,17 @@ function App() {
         </p>
       </header>
 
-      <main className="container-fluid py-3" style={{maxWidth: '1400px'}}>
-        <div className="row g-3">
+      <main className="container-fluid py-3" style={{maxWidth: '1000px'}}>
+        <div className="row g-2">
           {/* Left Column: NISA Accumulation */}
           <div className="col-lg-6">
             <div className="card h-100">
-              <div className="card-body">
+              <div className="card-body p-2">
                 <FormAccumulation
                   params={accumulationParams}
                   onChange={setAccumulationParams}
                 />
-                <div className="mt-3">
+                <div className="mt-2">
                   <div className="bg-light p-2 rounded">
                     <h3 className="h6 mb-2">積立結果</h3>
                     <div className="d-flex justify-content-between align-items-center mb-1">
@@ -168,11 +176,15 @@ function App() {
           {/* Right Column: Pension Calculation */}
           <div className="col-lg-6">
             <div className="card h-100">
-              <div className="card-body">
+              <div className="card-body p-2">
                 <FormIncome params={incomeParams} onChange={setIncomeParams} />
-                <div className="mt-3">
+                <div className="mt-2">
                   <div className="bg-light p-2 rounded">
                     <h3 className="h6 mb-2">年金結果</h3>
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                      <span className="small">年金開始年齢:</span>
+                      <span className="text-muted">{incomeParams.pensionStartAge}歳</span>
+                    </div>
                     {incomeParams.householdType === 'single' ? (
                       <div className="d-flex justify-content-between align-items-center mb-1">
                         <span className="small">夫の年金（月額）:</span>
@@ -218,10 +230,10 @@ function App() {
         </div>
 
         {/* Total Amount at Bottom Center */}
-        <div className="row mt-3">
+        <div className="row mt-2">
           <div className="col-12">
             <div className="card bg-gradient text-white text-center" style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}}>
-              <div className="card-body py-3">
+              <div className="card-body py-2">
                 <h2 className="h5 mb-2">老後の月収合計</h2>
                 <div className="display-6 fw-bold">
                   ¥{incomeResult.totalMonthlyIncome.toLocaleString('ja-JP', {
