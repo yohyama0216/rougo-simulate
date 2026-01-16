@@ -255,6 +255,17 @@ function App() {
                     取り崩し ¥{withdrawalResult.monthlyWithdrawal.toLocaleString('ja-JP', { maximumFractionDigits: 0 })}
                   </span>
                 </div>
+                <div className="mt-2 small opacity-90">
+                  <div className="badge bg-white bg-opacity-75 text-dark px-3 py-2" style={{ fontSize: '0.85em' }}>
+                    <i className="bi bi-clock-history me-1"></i>
+                    資産は約{withdrawalResult.yearsUntilDepletion.toFixed(1)}年持続
+                    {withdrawalResult.depletionAge < withdrawalParams.endAge ? (
+                      <span className="ms-1">({Math.floor(withdrawalResult.depletionAge)}歳まで)</span>
+                    ) : (
+                      <span className="ms-1">({withdrawalParams.endAge}歳以降も継続)</span>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

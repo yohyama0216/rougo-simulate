@@ -362,6 +362,7 @@ export function simulateWithdrawal(
   let balance = retirementAsset;
   let currentMonthlyWithdrawal = monthlyWithdrawal;
   const yearlyData: WithdrawalYearlyData[] = [];
+  let depletionMonths = -1; // -1 means money doesn't run out within the period
 
   for (let year = 0; year < years; year++) {
     const startBalance = balance;
@@ -382,6 +383,13 @@ export function simulateWithdrawal(
         yearlyWithdrawal += elderCareMonthly;
       }
       
+      // Check if balance has been depleted
+      // Note: year and month are 0-indexed, but we want to count completed months (1-indexed)
+      // Example: year=0, month=0 means the 1st month, so depletionMonths should be 1
+      if (depletionMonths === -1 && balance <= 0) {
+        depletionMonths = year * 12 + month + 1;
+      }
+      
       // Apply monthly inflation to withdrawal amount
       if (considerInflation && month < 11) {
         currentMonthlyWithdrawal *= (1 + monthlyInflation);
@@ -397,8 +405,19 @@ export function simulateWithdrawal(
     });
   }
 
+  // Calculate years until depletion
+  const yearsUntilDepletion = depletionMonths === -1 
+    ? years // Money lasts the entire period (or longer)
+    : depletionMonths / 12;
+  
+  const depletionAge = depletionMonths === -1
+    ? endAge // Doesn't deplete within the period
+    : startAge + yearsUntilDepletion;
+
   return {
     monthlyWithdrawal,
     yearlyData,
+    yearsUntilDepletion,
+    depletionAge,
   };
 }

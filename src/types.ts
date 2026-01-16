@@ -54,6 +54,8 @@ export interface WithdrawalParams {
 export interface WithdrawalResult {
   monthlyWithdrawal: number;
   yearlyData: WithdrawalYearlyData[];
+  yearsUntilDepletion: number; // Number of years until assets are depleted (can be decimal)
+  depletionAge: number; // Age when assets will be depleted
 }
 
 export interface WithdrawalYearlyData {
