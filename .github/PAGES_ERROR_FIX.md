@@ -28,8 +28,8 @@ https://github.com/yohyama0216/rougo-simulate/settings/pages
 ## 📖 詳細情報
 
 詳しい手順とトラブルシューティングは以下を参照：
-- [GITHUB_PAGES_SETUP.md](./GITHUB_PAGES_SETUP.md)
-- [README.md のデプロイセクション](./README.md#デプロイ)
+- [GITHUB_PAGES_SETUP.md](../GITHUB_PAGES_SETUP.md)
+- [README.md のデプロイセクション](../README.md)
 
 ## ⚠️ 注意
 
