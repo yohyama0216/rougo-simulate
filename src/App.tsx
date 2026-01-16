@@ -5,7 +5,12 @@ import FormWithdrawal from './components/FormWithdrawal';
 import FormIncome from './components/FormIncome';
 import ResultSummary from './components/ResultSummary';
 import TableYearly from './components/TableYearly';
-import { simulateAccumulation, simulateWithdrawal } from './lib/calc';
+import { 
+  simulateAccumulation, 
+  simulateWithdrawal,
+  calcEmployeesPension,
+  calcNationalPension
+} from './lib/calc';
 import type {
   AccumulationParams,
   WithdrawalParams,
@@ -55,8 +60,13 @@ function App() {
   // Income state
   const [incomeParams, setIncomeParams] = useState<IncomeParams>({
     householdType: 'single',
+    pensionInputMode: 'manual',
     husbandPension: 150000,
     wifePension: 0,
+    husbandAnnualSalary: 5000000, // Default: 5 million yen
+    husbandWorkingYears: 40,
+    wifeAnnualSalary: 3000000, // Default: 3 million yen
+    wifeWorkingYears: 40,
   });
 
   // Calculate accumulation result using useMemo
@@ -82,11 +92,41 @@ function App() {
 
   // Calculate income result using useMemo
   const incomeResult: IncomeResult = useMemo(() => {
-    const totalPension = incomeParams.husbandPension + incomeParams.wifePension;
+    let husbandPension = incomeParams.husbandPension;
+    let wifePension = incomeParams.wifePension;
+
+    // If calculate mode, compute pension from income
+    if (incomeParams.pensionInputMode === 'calculate') {
+      // Calculate husband's pension based on household type
+      if (incomeParams.householdType === 'single' || 
+          incomeParams.householdType === 'dualIncome' ||
+          incomeParams.householdType === 'partTime' ||
+          incomeParams.householdType === 'selfEmployed') {
+        husbandPension = calcEmployeesPension(
+          incomeParams.husbandAnnualSalary,
+          incomeParams.husbandWorkingYears
+        );
+      }
+
+      // Calculate wife's pension based on household type
+      if (incomeParams.householdType === 'dualIncome') {
+        wifePension = calcEmployeesPension(
+          incomeParams.wifeAnnualSalary,
+          incomeParams.wifeWorkingYears
+        );
+      } else if (incomeParams.householdType === 'partTime' || 
+                 incomeParams.householdType === 'selfEmployed') {
+        wifePension = calcNationalPension(incomeParams.wifeWorkingYears);
+      } else {
+        wifePension = 0;
+      }
+    }
+
+    const totalPension = husbandPension + wifePension;
     return {
       totalMonthlyIncome: totalPension + withdrawalResult.monthlyWithdrawal,
-      husbandPension: incomeParams.husbandPension,
-      wifePension: incomeParams.wifePension,
+      husbandPension,
+      wifePension,
       totalPension,
       withdrawal: withdrawalResult.monthlyWithdrawal,
     };
@@ -162,7 +202,9 @@ function App() {
                     <div className="d-flex justify-content-between align-items-center py-2">
                       <span>夫の年金（月額）:</span>
                       <span className="fw-bold text-primary">
-                        ¥{incomeParams.husbandPension.toLocaleString('ja-JP')}
+                        ¥{incomeResult.husbandPension.toLocaleString('ja-JP', {
+                          maximumFractionDigits: 0,
+                        })}
                       </span>
                     </div>
                   </>
@@ -171,19 +213,25 @@ function App() {
                     <div className="d-flex justify-content-between align-items-center py-2">
                       <span>夫の年金（月額）:</span>
                       <span className="fw-bold text-primary">
-                        ¥{incomeParams.husbandPension.toLocaleString('ja-JP')}
+                        ¥{incomeResult.husbandPension.toLocaleString('ja-JP', {
+                          maximumFractionDigits: 0,
+                        })}
                       </span>
                     </div>
                     <div className="d-flex justify-content-between align-items-center py-2">
                       <span>妻の年金（月額）:</span>
                       <span className="fw-bold text-primary">
-                        ¥{incomeParams.wifePension.toLocaleString('ja-JP')}
+                        ¥{incomeResult.wifePension.toLocaleString('ja-JP', {
+                          maximumFractionDigits: 0,
+                        })}
                       </span>
                     </div>
                     <div className="d-flex justify-content-between align-items-center py-2 border-top pt-2">
                       <span>年金合計（月額）:</span>
                       <span className="fw-bold text-success">
-                        ¥{incomeResult.totalPension.toLocaleString('ja-JP')}
+                        ¥{incomeResult.totalPension.toLocaleString('ja-JP', {
+                          maximumFractionDigits: 0,
+                        })}
                       </span>
                     </div>
                   </>

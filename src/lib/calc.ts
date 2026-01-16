@@ -16,6 +16,73 @@ export function annualToMonthlyRate(annualRate: number): number {
 }
 
 /**
+ * Calculate 国民年金 (National Pension) - Basic Pension
+ * 
+ * For 2024, the full amount is approximately ¥816,000 per year (¥68,000 per month)
+ * This assumes 40 years of contributions (age 20-60)
+ * 
+ * Formula: Full amount if contributed for 40 years
+ * If working years < 40, it's proportional: (years / 40) * full amount
+ * 
+ * @param workingYears - Number of years contributing to the pension (default: 40)
+ * @returns Monthly pension amount in yen
+ */
+export function calcNationalPension(workingYears: number = 40): number {
+  // 2024年度の満額（40年間納付）
+  const FULL_ANNUAL_AMOUNT = 816000; // 年額
+  const MAX_YEARS = 40;
+  
+  const years = Math.min(workingYears, MAX_YEARS);
+  const annualPension = (years / MAX_YEARS) * FULL_ANNUAL_AMOUNT;
+  
+  return annualPension / 12; // Return monthly amount
+}
+
+/**
+ * Calculate 厚生年金 (Employees' Pension Insurance)
+ * 
+ * Employees' Pension = National Pension (base) + Employees' portion
+ * 
+ * Simplified formula based on average annual income:
+ * Annual pension = Average monthly salary × 0.005481 × months of enrollment
+ * Monthly pension = Annual pension / 12 + National Pension
+ * 
+ * The 0.005481 is the accrual rate (給付乗率) for post-2003 earnings
+ * 
+ * This is a simplified calculation. Actual pension may vary based on:
+ * - Exact salary history each year
+ * - Revaluation rates applied to past earnings
+ * - Changes in pension system rules
+ * 
+ * @param averageAnnualSalary - Average annual salary during working years (税込年収)
+ * @param workingYears - Number of years contributing to employees' pension (default: 40)
+ * @returns Monthly pension amount in yen
+ */
+export function calcEmployeesPension(
+  averageAnnualSalary: number,
+  workingYears: number = 40
+): number {
+  // Base: National Pension (基礎年金)
+  const nationalPension = calcNationalPension(workingYears);
+  
+  // Employees' pension portion (報酬比例部分)
+  // 給付乗率 (accrual rate) for earnings after April 2003
+  const ACCRUAL_RATE = 0.005481;
+  const workingMonths = workingYears * 12;
+  
+  // Average monthly salary (standard monthly remuneration)
+  const monthlyAverageSalary = averageAnnualSalary / 12;
+  
+  // Annual employees' pension portion = average monthly salary × accrual rate × months
+  const annualEmployeesPortion = monthlyAverageSalary * ACCRUAL_RATE * workingMonths;
+  
+  // Convert to monthly amount and add national pension
+  const monthlyEmployeesPortion = annualEmployeesPortion / 12;
+  
+  return nationalPension + monthlyEmployeesPortion;
+}
+
+/**
  * Calculate monthly housing loan payment
  * Uses standard loan amortization formula
  */
