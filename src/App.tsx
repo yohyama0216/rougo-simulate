@@ -1,10 +1,6 @@
 import { useState, useMemo } from 'react';
-import Tabs from './components/Tabs';
 import FormAccumulation from './components/FormAccumulation';
-import FormWithdrawal from './components/FormWithdrawal';
 import FormIncome from './components/FormIncome';
-import ResultSummary from './components/ResultSummary';
-import TableYearly from './components/TableYearly';
 import { 
   simulateAccumulation, 
   simulateWithdrawal,
@@ -21,8 +17,6 @@ import type {
 } from './types';
 
 function App() {
-  const [activeTab, setActiveTab] = useState(0);
-
   // Accumulation state
   const [accumulationParams, setAccumulationParams] =
     useState<AccumulationParams>({
@@ -43,9 +37,14 @@ function App() {
       nisaWithdrawalStartYear: 10,
     });
 
-  // Withdrawal state
-  const [withdrawalParams, setWithdrawalParams] = useState<WithdrawalParams>({
-    retirementAsset: 0,
+  // Calculate accumulation result using useMemo
+  const accumulationResult: AccumulationResult = useMemo(() => {
+    return simulateAccumulation(accumulationParams);
+  }, [accumulationParams]);
+
+  // Withdrawal params (uses accumulation result)
+  const withdrawalParams: WithdrawalParams = useMemo(() => ({
+    retirementAsset: accumulationResult.finalAsset,
     startAge: 65,
     endAge: 95,
     annualReturn: 3.0,
@@ -55,7 +54,12 @@ function App() {
     elderCareMonthly: 100000,
     elderCareStartAge: 75,
     elderCareRecipient: 'none',
-  });
+  }), [accumulationResult.finalAsset]);
+
+  // Calculate withdrawal result using useMemo
+  const withdrawalResult: WithdrawalResult = useMemo(() => {
+    return simulateWithdrawal(withdrawalParams);
+  }, [withdrawalParams]);
 
   // Income state
   const [incomeParams, setIncomeParams] = useState<IncomeParams>({
@@ -68,27 +72,6 @@ function App() {
     wifeAnnualSalary: 3000000, // Default: 3 million yen
     wifeWorkingYears: 40,
   });
-
-  // Calculate accumulation result using useMemo
-  const accumulationResult: AccumulationResult = useMemo(() => {
-    return simulateAccumulation(accumulationParams);
-  }, [accumulationParams]);
-
-  // Update withdrawal params when accumulation result changes (only if retirement asset is 0)
-  const effectiveWithdrawalParams = useMemo(() => {
-    if (withdrawalParams.retirementAsset === 0) {
-      return {
-        ...withdrawalParams,
-        retirementAsset: accumulationResult.finalAsset,
-      };
-    }
-    return withdrawalParams;
-  }, [withdrawalParams, accumulationResult.finalAsset]);
-
-  // Calculate withdrawal result using useMemo
-  const withdrawalResult: WithdrawalResult = useMemo(() => {
-    return simulateWithdrawal(effectiveWithdrawalParams);
-  }, [effectiveWithdrawalParams]);
 
   // Calculate income result using useMemo
   const incomeResult: IncomeResult = useMemo(() => {
@@ -132,124 +115,130 @@ function App() {
 
   return (
     <div className="min-vh-100 bg-light">
-      <header className="text-white text-center py-5" style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}}>
-        <h1 className="display-4 fw-bold mb-2">老後資金シミュレーター</h1>
-        <p className="lead mb-0">
-          NISA積立 + 老後取り崩し + 月収計算
+      <header className="text-white text-center py-3" style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}}>
+        <h1 className="h3 fw-bold mb-1">老後資金シミュレーター</h1>
+        <p className="mb-0 small">
+          NISA積立 + 年金計算
         </p>
       </header>
 
-      <main className="container py-4" style={{maxWidth: '1200px'}}>
-        <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-        {activeTab === 0 && (
-          <>
-            <FormAccumulation
-              params={accumulationParams}
-              onChange={setAccumulationParams}
-            />
-            <ResultSummary
-              activeTab={activeTab}
-              accumulationResult={accumulationResult}
-              withdrawalResult={withdrawalResult}
-              incomeResult={incomeResult}
-            />
-            <TableYearly
-              activeTab={activeTab}
-              accumulationData={accumulationResult.yearlyData}
-              withdrawalData={[]}
-            />
-          </>
-        )}
-
-        {activeTab === 1 && (
-          <>
-            <FormWithdrawal
-              params={withdrawalParams}
-              onChange={setWithdrawalParams}
-              suggestedRetirementAsset={accumulationResult.finalAsset}
-            />
-            <ResultSummary
-              activeTab={activeTab}
-              accumulationResult={accumulationResult}
-              withdrawalResult={withdrawalResult}
-              incomeResult={incomeResult}
-            />
-            <TableYearly
-              activeTab={activeTab}
-              accumulationData={[]}
-              withdrawalData={withdrawalResult.yearlyData}
-            />
-          </>
-        )}
-
-        {activeTab === 2 && (
-          <>
-            <FormIncome params={incomeParams} onChange={setIncomeParams} />
-            <ResultSummary
-              activeTab={activeTab}
-              accumulationResult={accumulationResult}
-              withdrawalResult={withdrawalResult}
-              incomeResult={incomeResult}
-            />
-            <div className="card mt-4">
+      <main className="container-fluid py-3" style={{maxWidth: '1400px'}}>
+        <div className="row g-3">
+          {/* Left Column: NISA Accumulation */}
+          <div className="col-lg-6">
+            <div className="card h-100">
               <div className="card-body">
-                <h3 className="card-title h5 mb-3">内訳</h3>
-                {incomeParams.householdType === 'single' ? (
-                  <>
-                    <div className="d-flex justify-content-between align-items-center py-2">
-                      <span>夫の年金（月額）:</span>
+                <FormAccumulation
+                  params={accumulationParams}
+                  onChange={setAccumulationParams}
+                />
+                <div className="mt-3">
+                  <div className="bg-light p-2 rounded">
+                    <h3 className="h6 mb-2">積立結果</h3>
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                      <span className="small">最終資産:</span>
                       <span className="fw-bold text-primary">
-                        ¥{incomeResult.husbandPension.toLocaleString('ja-JP', {
+                        ¥{accumulationResult.finalAsset.toLocaleString('ja-JP', {
                           maximumFractionDigits: 0,
                         })}
                       </span>
                     </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="d-flex justify-content-between align-items-center py-2">
-                      <span>夫の年金（月額）:</span>
-                      <span className="fw-bold text-primary">
-                        ¥{incomeResult.husbandPension.toLocaleString('ja-JP', {
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                      <span className="small">元本合計:</span>
+                      <span className="text-muted">
+                        ¥{accumulationResult.totalContribution.toLocaleString('ja-JP', {
                           maximumFractionDigits: 0,
                         })}
                       </span>
                     </div>
-                    <div className="d-flex justify-content-between align-items-center py-2">
-                      <span>妻の年金（月額）:</span>
-                      <span className="fw-bold text-primary">
-                        ¥{incomeResult.wifePension.toLocaleString('ja-JP', {
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span className="small">運用益:</span>
+                      <span className="text-success">
+                        ¥{accumulationResult.totalGain.toLocaleString('ja-JP', {
                           maximumFractionDigits: 0,
                         })}
                       </span>
                     </div>
-                    <div className="d-flex justify-content-between align-items-center py-2 border-top pt-2">
-                      <span>年金合計（月額）:</span>
-                      <span className="fw-bold text-success">
-                        ¥{incomeResult.totalPension.toLocaleString('ja-JP', {
-                          maximumFractionDigits: 0,
-                        })}
-                      </span>
-                    </div>
-                  </>
-                )}
-                <div className="d-flex justify-content-between align-items-center py-2">
-                  <span>取り崩し（月額）:</span>
-                  <span className="fw-bold text-primary">
-                    ¥
-                    {withdrawalResult.monthlyWithdrawal.toLocaleString('ja-JP', {
-                      maximumFractionDigits: 0,
-                    })}
-                  </span>
+                  </div>
                 </div>
               </div>
             </div>
-          </>
-        )}
+          </div>
+
+          {/* Right Column: Pension Calculation */}
+          <div className="col-lg-6">
+            <div className="card h-100">
+              <div className="card-body">
+                <FormIncome params={incomeParams} onChange={setIncomeParams} />
+                <div className="mt-3">
+                  <div className="bg-light p-2 rounded">
+                    <h3 className="h6 mb-2">年金結果</h3>
+                    {incomeParams.householdType === 'single' ? (
+                      <div className="d-flex justify-content-between align-items-center mb-1">
+                        <span className="small">夫の年金（月額）:</span>
+                        <span className="fw-bold text-primary">
+                          ¥{incomeResult.husbandPension.toLocaleString('ja-JP', {
+                            maximumFractionDigits: 0,
+                          })}
+                        </span>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="d-flex justify-content-between align-items-center mb-1">
+                          <span className="small">夫の年金（月額）:</span>
+                          <span className="text-muted">
+                            ¥{incomeResult.husbandPension.toLocaleString('ja-JP', {
+                              maximumFractionDigits: 0,
+                            })}
+                          </span>
+                        </div>
+                        <div className="d-flex justify-content-between align-items-center mb-1">
+                          <span className="small">妻の年金（月額）:</span>
+                          <span className="text-muted">
+                            ¥{incomeResult.wifePension.toLocaleString('ja-JP', {
+                              maximumFractionDigits: 0,
+                            })}
+                          </span>
+                        </div>
+                        <div className="d-flex justify-content-between align-items-center border-top pt-1">
+                          <span className="small">年金合計（月額）:</span>
+                          <span className="fw-bold text-primary">
+                            ¥{incomeResult.totalPension.toLocaleString('ja-JP', {
+                              maximumFractionDigits: 0,
+                            })}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Total Amount at Bottom Center */}
+        <div className="row mt-3">
+          <div className="col-12">
+            <div className="card bg-gradient text-white text-center" style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}}>
+              <div className="card-body py-3">
+                <h2 className="h5 mb-2">老後の月収合計</h2>
+                <div className="display-6 fw-bold">
+                  ¥{incomeResult.totalMonthlyIncome.toLocaleString('ja-JP', {
+                    maximumFractionDigits: 0,
+                  })} / 月
+                </div>
+                <div className="mt-2 small opacity-75">
+                  年金 ¥{incomeResult.totalPension.toLocaleString('ja-JP', { maximumFractionDigits: 0 })} + 
+                  取り崩し ¥{withdrawalResult.monthlyWithdrawal.toLocaleString('ja-JP', { maximumFractionDigits: 0 })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
 
-      <footer className="bg-dark text-white text-center py-3 mt-auto">
+      <footer className="bg-dark text-white text-center py-2 mt-auto">
         <p className="mb-0 small opacity-75">
           ※このシミュレーターは参考値です。実際の運用成果を保証するものではありません。
         </p>

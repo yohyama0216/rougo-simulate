@@ -58,42 +58,44 @@ export default function FormIncome({ params, onChange }: FormIncomeProps) {
 
   return (
     <div className="row">
-      <div className="col-lg-8 col-xl-6">
-        <h2 className="h4 mb-4">老後の月収</h2>
+      <div className="col-12">
+        <h2 className="h5 mb-3">老後の月収</h2>
 
-        <div className="mb-3">
-          <label className="form-label fw-semibold">世帯タイプ</label>
-          <select
-            className="form-select"
-            value={params.householdType}
-            onChange={(e) => handleHouseholdTypeChange(e.target.value as HouseholdType)}
-          >
-            <option value="single">夫のみ（会社員）</option>
-            <option value="dualIncome">夫婦共働き（両方会社員）</option>
-            <option value="partTime">妻がパート（第3号被保険者）</option>
-            <option value="selfEmployed">妻が個人事業主</option>
-          </select>
-        </div>
+        <div className="row g-2 mb-3">
+          <div className="col-md-6">
+            <label className="form-label fw-semibold">世帯タイプ</label>
+            <select
+              className="form-select form-select-sm"
+              value={params.householdType}
+              onChange={(e) => handleHouseholdTypeChange(e.target.value as HouseholdType)}
+            >
+              <option value="single">夫のみ（会社員）</option>
+              <option value="dualIncome">夫婦共働き（両方会社員）</option>
+              <option value="partTime">妻がパート（第3号被保険者）</option>
+              <option value="selfEmployed">妻が個人事業主</option>
+            </select>
+          </div>
 
-        <div className="mb-4">
-          <label className="form-label fw-semibold">年金の入力方法</label>
-          <select
-            className="form-select"
-            value={params.pensionInputMode}
-            onChange={(e) => handleChange('pensionInputMode', e.target.value as PensionInputMode)}
-          >
-            <option value="manual">年金額を直接入力</option>
-            <option value="calculate">現在の年収から計算</option>
-          </select>
+          <div className="col-md-6">
+            <label className="form-label fw-semibold">年金の入力方法</label>
+            <select
+              className="form-select form-select-sm"
+              value={params.pensionInputMode}
+              onChange={(e) => handleChange('pensionInputMode', e.target.value as PensionInputMode)}
+            >
+              <option value="manual">年金額を直接入力</option>
+              <option value="calculate">現在の年収から計算</option>
+            </select>
+          </div>
         </div>
 
         {params.pensionInputMode === 'manual' ? (
-          <>
-            <div className="mb-3">
+          <div className="row g-2">
+            <div className={params.householdType === 'single' ? 'col-12' : 'col-md-6'}>
               <label className="form-label fw-semibold">夫の年金（月額、円）</label>
               <input
                 type="number"
-                className="form-control"
+                className="form-control form-control-sm"
                 value={params.husbandPension}
                 onChange={(e) => handleChange('husbandPension', e.target.value)}
                 min="0"
@@ -106,11 +108,11 @@ export default function FormIncome({ params, onChange }: FormIncomeProps) {
             </div>
 
             {params.householdType !== 'single' && (
-              <div className="mb-3">
+              <div className="col-md-6">
                 <label className="form-label fw-semibold">妻の年金（月額、円）</label>
                 <input
                   type="number"
-                  className="form-control"
+                  className="form-control form-control-sm"
                   value={params.wifePension}
                   onChange={(e) => handleChange('wifePension', e.target.value)}
                   min="0"
@@ -123,67 +125,69 @@ export default function FormIncome({ params, onChange }: FormIncomeProps) {
                 </small>
               </div>
             )}
-          </>
+          </div>
         ) : (
           <>
             {/* Husband's income inputs */}
-            <div className="card mb-3">
-              <div className="card-header bg-light">
+            <div className="card mb-2">
+              <div className="card-header bg-light py-2">
                 <h5 className="mb-0 h6">夫の情報</h5>
               </div>
-              <div className="card-body">
-                <div className="mb-3">
-                  <label className="form-label fw-semibold">
-                    平均年収（税込、円）
-                  </label>
-                  <input
-                    type="number"
-                    className="form-control"
-                    value={params.husbandAnnualSalary}
-                    onChange={(e) => handleChange('husbandAnnualSalary', e.target.value)}
-                    min="0"
-                    step="100000"
-                  />
-                  <small className="form-text text-muted">
-                    現役時代の平均的な年収（税込）を入力してください
-                  </small>
-                </div>
-                <div className="mb-0">
-                  <label className="form-label fw-semibold">
-                    厚生年金加入期間（年）
-                  </label>
-                  <input
-                    type="number"
-                    className="form-control"
-                    value={params.husbandWorkingYears}
-                    onChange={(e) => handleChange('husbandWorkingYears', e.target.value)}
-                    min="0"
-                    max="50"
-                    step="1"
-                  />
-                  <small className="form-text text-muted">
-                    厚生年金に加入する年数（通常20歳〜60歳で40年）
-                  </small>
+              <div className="card-body py-2">
+                <div className="row g-2">
+                  <div className="col-md-6">
+                    <label className="form-label fw-semibold">
+                      平均年収（税込、円）
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control form-control-sm"
+                      value={params.husbandAnnualSalary}
+                      onChange={(e) => handleChange('husbandAnnualSalary', e.target.value)}
+                      min="0"
+                      step="100000"
+                    />
+                    <small className="form-text text-muted">
+                      現役時代の平均的な年収（税込）を入力してください
+                    </small>
+                  </div>
+                  <div className="col-md-6">
+                    <label className="form-label fw-semibold">
+                      厚生年金加入期間（年）
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control form-control-sm"
+                      value={params.husbandWorkingYears}
+                      onChange={(e) => handleChange('husbandWorkingYears', e.target.value)}
+                      min="0"
+                      max="50"
+                      step="1"
+                    />
+                    <small className="form-text text-muted">
+                      厚生年金に加入する年数（通常20歳〜60歳で40年）
+                    </small>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Wife's income inputs */}
             {params.householdType !== 'single' && (
-              <div className="card mb-3">
-                <div className="card-header bg-light">
+              <div className="card mb-2">
+                <div className="card-header bg-light py-2">
                   <h5 className="mb-0 h6">妻の情報</h5>
                 </div>
-                <div className="card-body">
+                <div className="card-body py-2">
                   {params.householdType === 'dualIncome' ? (
-                    <>
-                      <div className="mb-3">
+                    <div className="row g-2">
+                      <div className="col-md-6">
                         <label className="form-label fw-semibold">
                           平均年収（税込、円）
                         </label>
                         <input
                           type="number"
-                          className="form-control"
+                          className="form-control form-control-sm"
                           value={params.wifeAnnualSalary}
                           onChange={(e) => handleChange('wifeAnnualSalary', e.target.value)}
                           min="0"
@@ -193,13 +197,13 @@ export default function FormIncome({ params, onChange }: FormIncomeProps) {
                           現役時代の平均的な年収（税込）を入力してください
                         </small>
                       </div>
-                      <div className="mb-0">
+                      <div className="col-md-6">
                         <label className="form-label fw-semibold">
                           厚生年金加入期間（年）
                         </label>
                         <input
                           type="number"
-                          className="form-control"
+                          className="form-control form-control-sm"
                           value={params.wifeWorkingYears}
                           onChange={(e) => handleChange('wifeWorkingYears', e.target.value)}
                           min="0"
@@ -210,7 +214,7 @@ export default function FormIncome({ params, onChange }: FormIncomeProps) {
                           厚生年金に加入する年数（通常20歳〜60歳で40年）
                         </small>
                       </div>
-                    </>
+                    </div>
                   ) : (
                     <div className="mb-0">
                       <label className="form-label fw-semibold">
@@ -218,7 +222,7 @@ export default function FormIncome({ params, onChange }: FormIncomeProps) {
                       </label>
                       <input
                         type="number"
-                        className="form-control"
+                        className="form-control form-control-sm"
                         value={params.wifeWorkingYears}
                         onChange={(e) => handleChange('wifeWorkingYears', e.target.value)}
                         min="0"
@@ -235,24 +239,24 @@ export default function FormIncome({ params, onChange }: FormIncomeProps) {
             )}
 
             {/* Calculation Formula Explanation */}
-            <div className="alert alert-info">
+            <div className="alert alert-info py-2">
               <h6 className="alert-heading mb-2">
                 <i className="bi bi-info-circle"></i> 年金計算式
               </h6>
               <div className="small">
-                <p className="mb-2">
+                <p className="mb-1">
                   <strong>厚生年金の計算式：</strong>
                 </p>
-                <p className="mb-2" style={{ fontFamily: 'monospace', fontSize: '0.85em' }}>
+                <p className="mb-1" style={{ fontFamily: 'monospace', fontSize: '0.85em' }}>
                   月額年金 = 国民年金（基礎年金）+ 厚生年金部分
                 </p>
-                <p className="mb-2" style={{ fontFamily: 'monospace', fontSize: '0.85em' }}>
+                <p className="mb-1" style={{ fontFamily: 'monospace', fontSize: '0.85em' }}>
                   厚生年金部分 = 平均月収 × 0.005481 × 加入月数
                 </p>
-                <p className="mb-2">
+                <p className="mb-1">
                   <strong>国民年金の計算式：</strong>
                 </p>
-                <p className="mb-2" style={{ fontFamily: 'monospace', fontSize: '0.85em' }}>
+                <p className="mb-1" style={{ fontFamily: 'monospace', fontSize: '0.85em' }}>
                   月額年金 = ¥68,000 × (加入年数 / 40年)
                 </p>
                 <p className="mb-0 text-muted" style={{ fontSize: '0.85em' }}>

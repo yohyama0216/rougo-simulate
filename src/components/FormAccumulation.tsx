@@ -26,71 +26,73 @@ export default function FormAccumulation({
 
   return (
     <div className="row">
-      <div className="col-lg-10 col-xl-8">
-        <h2 className="h4 mb-4">積立シミュレーション（NISA）</h2>
+      <div className="col-12">
+        <h2 className="h5 mb-3">積立シミュレーション（NISA）</h2>
 
-        <div className="mb-3">
-          <label className="form-label fw-semibold">初期資産（円）</label>
-          <input
-            type="number"
-            className="form-control"
-            value={params.initialAsset}
-            onChange={(e) => handleChange('initialAsset', e.target.value)}
-            min="0"
-            step="10000"
-          />
+        <div className="row g-2">
+          <div className="col-md-6">
+            <label className="form-label fw-semibold">初期資産（円）</label>
+            <input
+              type="number"
+              className="form-control form-control-sm"
+              value={params.initialAsset}
+              onChange={(e) => handleChange('initialAsset', e.target.value)}
+              min="0"
+              step="10000"
+            />
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label fw-semibold">毎月積立額（円）</label>
+            <input
+              type="number"
+              className="form-control form-control-sm"
+              value={params.monthlyContribution}
+              onChange={(e) => handleChange('monthlyContribution', e.target.value)}
+              min="0"
+              step="1000"
+            />
+          </div>
+
+          <div className="col-md-4">
+            <label className="form-label fw-semibold">積立期間（年）</label>
+            <input
+              type="number"
+              className="form-control form-control-sm"
+              value={params.years}
+              onChange={(e) => handleChange('years', e.target.value)}
+              min="1"
+              step="1"
+            />
+          </div>
+
+          <div className="col-md-4">
+            <label className="form-label fw-semibold">想定利回り（年率%）</label>
+            <input
+              type="number"
+              className="form-control form-control-sm"
+              value={params.annualReturn}
+              onChange={(e) => handleChange('annualReturn', e.target.value)}
+              min="0"
+              step="0.1"
+            />
+          </div>
+
+          <div className="col-md-4">
+            <label className="form-label fw-semibold">年間コスト（信託報酬等、年率%）</label>
+            <input
+              type="number"
+              className="form-control form-control-sm"
+              value={params.annualCost}
+              onChange={(e) => handleChange('annualCost', e.target.value)}
+              min="0"
+              step="0.1"
+            />
+          </div>
         </div>
 
-        <div className="mb-3">
-          <label className="form-label fw-semibold">毎月積立額（円）</label>
-          <input
-            type="number"
-            className="form-control"
-            value={params.monthlyContribution}
-            onChange={(e) => handleChange('monthlyContribution', e.target.value)}
-            min="0"
-            step="1000"
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label fw-semibold">積立期間（年）</label>
-          <input
-            type="number"
-            className="form-control"
-            value={params.years}
-            onChange={(e) => handleChange('years', e.target.value)}
-            min="1"
-            step="1"
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label fw-semibold">想定利回り（年率%）</label>
-          <input
-            type="number"
-            className="form-control"
-            value={params.annualReturn}
-            onChange={(e) => handleChange('annualReturn', e.target.value)}
-            min="0"
-            step="0.1"
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label fw-semibold">年間コスト（信託報酬等、年率%）</label>
-          <input
-            type="number"
-            className="form-control"
-            value={params.annualCost}
-            onChange={(e) => handleChange('annualCost', e.target.value)}
-            min="0"
-            step="0.1"
-          />
-        </div>
-
-        <div className="border-top pt-3 mt-4">
-          <div className="form-check mb-3">
+        <div className="border-top pt-2 mt-3">
+          <div className="form-check mb-2">
             <input
               className="form-check-input"
               type="checkbox"
@@ -104,11 +106,11 @@ export default function FormAccumulation({
           </div>
 
           {params.considerInflation && (
-            <div className="mb-3">
+            <div className="mb-2">
               <label className="form-label">インフレ率（年率%）</label>
               <input
                 type="number"
-                className="form-control"
+                className="form-control form-control-sm"
                 value={params.inflationRate}
                 onChange={(e) => handleChange('inflationRate', e.target.value)}
                 min="0"
@@ -121,8 +123,8 @@ export default function FormAccumulation({
           )}
         </div>
 
-        <div className="border-top pt-3 mt-4">
-          <div className="form-check mb-3">
+        <div className="border-top pt-2 mt-3">
+          <div className="form-check mb-2">
             <input
               className="form-check-input"
               type="checkbox"
@@ -136,12 +138,12 @@ export default function FormAccumulation({
           </div>
 
           {params.hasHousingLoan && (
-            <>
-              <div className="mb-3">
+            <div className="row g-2">
+              <div className="col-md-6">
                 <label className="form-label">ローン借入額（円）</label>
                 <input
                   type="number"
-                  className="form-control"
+                  className="form-control form-control-sm"
                   value={params.housingLoanAmount}
                   onChange={(e) => handleChange('housingLoanAmount', e.target.value)}
                   min="0"
@@ -149,11 +151,11 @@ export default function FormAccumulation({
                 />
               </div>
 
-              <div className="mb-3">
+              <div className="col-md-6">
                 <label className="form-label">ローン金利（年率%）</label>
                 <input
                   type="number"
-                  className="form-control"
+                  className="form-control form-control-sm"
                   value={params.housingLoanInterestRate}
                   onChange={(e) => handleChange('housingLoanInterestRate', e.target.value)}
                   min="0"
@@ -161,11 +163,11 @@ export default function FormAccumulation({
                 />
               </div>
 
-              <div className="mb-3">
+              <div className="col-md-6">
                 <label className="form-label">ローン返済期間（年）</label>
                 <input
                   type="number"
-                  className="form-control"
+                  className="form-control form-control-sm"
                   value={params.housingLoanYears}
                   onChange={(e) => handleChange('housingLoanYears', e.target.value)}
                   min="1"
@@ -173,11 +175,11 @@ export default function FormAccumulation({
                 />
               </div>
 
-              <div className="mb-3">
+              <div className="col-md-6">
                 <label className="form-label">ローン開始年（積立開始からの年数）</label>
                 <input
                   type="number"
-                  className="form-control"
+                  className="form-control form-control-sm"
                   value={params.housingLoanStartYear}
                   onChange={(e) => handleChange('housingLoanStartYear', e.target.value)}
                   min="1"
@@ -188,12 +190,12 @@ export default function FormAccumulation({
                   積立開始から何年目にローンを開始するか
                 </small>
               </div>
-            </>
+            </div>
           )}
         </div>
 
-        <div className="border-top pt-3 mt-4">
-          <div className="form-check mb-3">
+        <div className="border-top pt-2 mt-3">
+          <div className="form-check mb-2">
             <input
               className="form-check-input"
               type="checkbox"
@@ -207,12 +209,12 @@ export default function FormAccumulation({
           </div>
 
           {params.hasNisaWithdrawal && (
-            <>
-              <div className="mb-3">
+            <div className="row g-2">
+              <div className="col-md-6">
                 <label className="form-label">毎月の取り崩し額（円/月）</label>
                 <input
                   type="number"
-                  className="form-control"
+                  className="form-control form-control-sm"
                   value={params.nisaWithdrawalMonthly}
                   onChange={(e) => handleChange('nisaWithdrawalMonthly', e.target.value)}
                   min="0"
@@ -220,11 +222,11 @@ export default function FormAccumulation({
                 />
               </div>
 
-              <div className="mb-3">
+              <div className="col-md-6">
                 <label className="form-label">取り崩し開始年（積立開始からの年数）</label>
                 <input
                   type="number"
-                  className="form-control"
+                  className="form-control form-control-sm"
                   value={params.nisaWithdrawalStartYear}
                   onChange={(e) => handleChange('nisaWithdrawalStartYear', e.target.value)}
                   min="1"
@@ -235,7 +237,7 @@ export default function FormAccumulation({
                   積立開始から何年目に取り崩しを開始するか
                 </small>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>
