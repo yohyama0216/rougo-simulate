@@ -20,25 +20,37 @@ export default function ResultSummary({
 }: ResultSummaryProps) {
   if (activeTab === 0) {
     return (
-      <div style={styles.container}>
-        <h3 style={styles.heading}>積立結果</h3>
-        <div style={styles.resultGrid}>
-          <div style={styles.resultItem}>
-            <div style={styles.resultLabel}>最終資産</div>
-            <div style={styles.resultValue}>
-              {formatYen(accumulationResult.finalAsset)}
+      <div className="bg-light p-4 rounded mt-4">
+        <h3 className="h5 mb-3">積立結果</h3>
+        <div className="row g-3">
+          <div className="col-md-4">
+            <div className="card h-100">
+              <div className="card-body">
+                <div className="text-muted small mb-1">最終資産</div>
+                <div className="h4 text-primary fw-bold mb-0">
+                  {formatYen(accumulationResult.finalAsset)}
+                </div>
+              </div>
             </div>
           </div>
-          <div style={styles.resultItem}>
-            <div style={styles.resultLabel}>元本合計</div>
-            <div style={styles.resultValue}>
-              {formatYen(accumulationResult.totalContribution)}
+          <div className="col-md-4">
+            <div className="card h-100">
+              <div className="card-body">
+                <div className="text-muted small mb-1">元本合計</div>
+                <div className="h4 text-primary fw-bold mb-0">
+                  {formatYen(accumulationResult.totalContribution)}
+                </div>
+              </div>
             </div>
           </div>
-          <div style={styles.resultItem}>
-            <div style={styles.resultLabel}>運用益</div>
-            <div style={styles.resultValue}>
-              {formatYen(accumulationResult.totalGain)}
+          <div className="col-md-4">
+            <div className="card h-100">
+              <div className="card-body">
+                <div className="text-muted small mb-1">運用益</div>
+                <div className="h4 text-primary fw-bold mb-0">
+                  {formatYen(accumulationResult.totalGain)}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -48,13 +60,17 @@ export default function ResultSummary({
 
   if (activeTab === 1) {
     return (
-      <div style={styles.container}>
-        <h3 style={styles.heading}>取り崩し結果</h3>
-        <div style={styles.resultGrid}>
-          <div style={styles.resultItem}>
-            <div style={styles.resultLabel}>枯渇しない月額取り崩し</div>
-            <div style={styles.resultValueLarge}>
-              {formatYen(withdrawalResult.monthlyWithdrawal)}/月
+      <div className="bg-light p-4 rounded mt-4">
+        <h3 className="h5 mb-3">取り崩し結果</h3>
+        <div className="row">
+          <div className="col-md-6">
+            <div className="card">
+              <div className="card-body">
+                <div className="text-muted small mb-1">枯渇しない月額取り崩し</div>
+                <div className="h3 text-primary fw-bold mb-0">
+                  {formatYen(withdrawalResult.monthlyWithdrawal)}/月
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -64,13 +80,17 @@ export default function ResultSummary({
 
   if (activeTab === 2) {
     return (
-      <div style={styles.container}>
-        <h3 style={styles.heading}>老後の月収</h3>
-        <div style={styles.resultGrid}>
-          <div style={styles.resultItem}>
-            <div style={styles.resultLabel}>月収合計</div>
-            <div style={styles.resultValueLarge}>
-              {formatYen(incomeResult.totalMonthlyIncome)}/月
+      <div className="bg-light p-4 rounded mt-4">
+        <h3 className="h5 mb-3">老後の月収</h3>
+        <div className="row">
+          <div className="col-md-6">
+            <div className="card">
+              <div className="card-body">
+                <div className="text-muted small mb-1">月収合計</div>
+                <div className="h3 text-primary fw-bold mb-0">
+                  {formatYen(incomeResult.totalMonthlyIncome)}/月
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -80,44 +100,3 @@ export default function ResultSummary({
 
   return null;
 }
-
-const styles = {
-  container: {
-    background: '#f5f5f5',
-    padding: '24px',
-    borderRadius: '8px',
-    marginTop: '24px',
-  },
-  heading: {
-    fontSize: '20px',
-    marginBottom: '16px',
-    color: '#333',
-  },
-  resultGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '16px',
-  },
-  resultItem: {
-    background: 'white',
-    padding: '16px',
-    borderRadius: '4px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-  },
-  resultLabel: {
-    fontSize: '12px',
-    color: '#666',
-    marginBottom: '8px',
-    fontWeight: '500',
-  },
-  resultValue: {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    color: '#1976d2',
-  },
-  resultValueLarge: {
-    fontSize: '32px',
-    fontWeight: 'bold',
-    color: '#1976d2',
-  },
-};
