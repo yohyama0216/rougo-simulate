@@ -141,8 +141,10 @@ function App() {
                   onChange={setAccumulationParams}
                 />
                 <div className="mt-2">
-                  <div className="bg-light p-2 rounded">
-                    <h3 className="h6 mb-2">積立結果</h3>
+                  <div className="bg-light p-2 rounded shadow-sm" style={{ border: '1px solid #e0e7ff' }}>
+                    <h3 className="h6 mb-2 fw-bold" style={{ color: '#667eea' }}>
+                      <i className="bi bi-graph-up me-1"></i>積立結果
+                    </h3>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <span className="small">最終資産:</span>
                       <span className="fw-bold text-primary">
