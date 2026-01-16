@@ -1,8 +1,13 @@
 name: Deploy to GitHub Pages
 
-# This workflow deploys the built application to GitHub Pages
-# IMPORTANT: GitHub Pages must be enabled in repository settings
-# Go to Settings → Pages and set source to "GitHub Actions"
+# ⚠️ IMPORTANT: GitHub Pages must be enabled BEFORE running this workflow
+# 
+# If you see a "404 Not Found" error during deployment:
+# 1. Go to repository Settings → Pages
+# 2. Under "Build and deployment", set Source to "GitHub Actions"
+# 3. Re-run this workflow
+# 
+# For detailed setup instructions, see: GITHUB_PAGES_SETUP.md
 
 on:
   push:
@@ -20,8 +25,23 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Pre-deployment validation
+  check-pages-enabled:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if GitHub Pages is enabled
+        id: check-pages
+        continue-on-error: true
+        run: |
+          echo "::notice::This workflow requires GitHub Pages to be enabled"
+          echo "::notice::If deployment fails with 404, please enable GitHub Pages:"
+          echo "::notice::1. Go to Settings → Pages"
+          echo "::notice::2. Set Source to 'GitHub Actions'"
+          echo "::notice::3. See GITHUB_PAGES_SETUP.md for detailed instructions"
+
   build:
     runs-on: ubuntu-latest
+    needs: check-pages-enabled
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,3 +73,20 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        continue-on-error: true
+      
+      - name: Check deployment result
+        if: steps.deployment.outcome == 'failure'
+        run: |
+          echo "::error::❌ GitHub Pages deployment failed!"
+          echo "::error::"
+          echo "::error::Common cause: GitHub Pages is not enabled or not configured correctly"
+          echo "::error::"
+          echo "::error::To fix this issue:"
+          echo "::error::1. Go to: https://github.com/${{ github.repository }}/settings/pages"
+          echo "::error::2. Under 'Build and deployment', set Source to 'GitHub Actions'"
+          echo "::error::3. Wait a moment, then re-run this workflow"
+          echo "::error::"
+          echo "::error::For detailed instructions, see GITHUB_PAGES_SETUP.md in the repository"
+          echo "::error::"
+          exit 1
