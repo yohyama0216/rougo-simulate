@@ -179,8 +179,10 @@ function App() {
               <div className="card-body p-2">
                 <FormIncome params={incomeParams} onChange={setIncomeParams} />
                 <div className="mt-2">
-                  <div className="bg-light p-2 rounded">
-                    <h3 className="h6 mb-2">年金結果</h3>
+                  <div className="bg-light p-2 rounded shadow-sm" style={{ border: '1px solid #e0e7ff' }}>
+                    <h3 className="h6 mb-2 fw-bold" style={{ color: '#667eea' }}>
+                      <i className="bi bi-clipboard-data me-1"></i>年金結果
+                    </h3>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <span className="small">年金開始年齢:</span>
                       <span className="text-muted">{incomeParams.pensionStartAge}歳</span>
@@ -232,17 +234,26 @@ function App() {
         {/* Total Amount at Bottom Center */}
         <div className="row mt-2">
           <div className="col-12">
-            <div className="card bg-gradient text-white text-center" style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}}>
-              <div className="card-body py-2">
-                <h2 className="h5 mb-2">老後の月収合計</h2>
-                <div className="display-6 fw-bold">
+            <div className="card text-white text-center shadow-lg" style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none'}}>
+              <div className="card-body py-3">
+                <h2 className="h5 mb-2 fw-bold">
+                  <i className="bi bi-piggy-bank me-2"></i>年金目安額（月額）
+                </h2>
+                <div className="display-5 fw-bold mb-2">
                   ¥{incomeResult.totalMonthlyIncome.toLocaleString('ja-JP', {
                     maximumFractionDigits: 0,
-                  })} / 月
+                  })}
                 </div>
-                <div className="mt-2 small opacity-75">
-                  年金 ¥{incomeResult.totalPension.toLocaleString('ja-JP', { maximumFractionDigits: 0 })} + 
-                  取り崩し ¥{withdrawalResult.monthlyWithdrawal.toLocaleString('ja-JP', { maximumFractionDigits: 0 })}
+                <div className="mt-2 small opacity-90" style={{ fontSize: '0.9em' }}>
+                  <span className="badge bg-white text-primary me-2 px-3 py-2" style={{ fontSize: '0.85em' }}>
+                    <i className="bi bi-wallet2 me-1"></i>
+                    年金 ¥{incomeResult.totalPension.toLocaleString('ja-JP', { maximumFractionDigits: 0 })}
+                  </span>
+                  <span className="mx-1">+</span>
+                  <span className="badge bg-white text-success px-3 py-2" style={{ fontSize: '0.85em' }}>
+                    <i className="bi bi-graph-up me-1"></i>
+                    取り崩し ¥{withdrawalResult.monthlyWithdrawal.toLocaleString('ja-JP', { maximumFractionDigits: 0 })}
+                  </span>
                 </div>
               </div>
             </div>
