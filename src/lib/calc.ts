@@ -5,6 +5,7 @@ import type {
   WithdrawalResult,
   YearlyData,
   WithdrawalYearlyData,
+  IncomePeriod,
 } from '../types';
 
 // Pension calculation constants (2024年度)
@@ -79,6 +80,62 @@ export function calcEmployeesPension(
   const monthlyEmployeesPortion = annualEmployeesPortion / 12;
   
   return nationalPension + monthlyEmployeesPortion;
+}
+
+/**
+ * Calculate 厚生年金 (Employees' Pension Insurance) from multiple income periods
+ * 
+ * This function calculates pension based on detailed income history with multiple periods.
+ * It allows for more accurate pension calculation when income varied significantly over time.
+ * 
+ * Employees' Pension = National Pension (base) + Employees' portion
+ * 
+ * Formula for each period:
+ * Pension portion = (Annual Salary / 12) × 0.005481 × months in that period
+ * 
+ * @param incomePeriods - Array of income periods with salary and years
+ * @returns Monthly pension amount in yen
+ */
+export function calcEmployeesPensionFromPeriods(
+  incomePeriods: IncomePeriod[]
+): number {
+  // Calculate total years for national pension
+  const totalYears = incomePeriods.reduce((sum, period) => sum + period.years, 0);
+  
+  // Base: National Pension (基礎年金)
+  const nationalPension = calcNationalPension(totalYears);
+  
+  // Employees' pension portion from each period
+  let totalEmployeesPortion = 0;
+  
+  for (const period of incomePeriods) {
+    const monthlyAverageSalary = period.annualSalary / 12;
+    const months = period.years * 12;
+    
+    // Annual portion from this period
+    const periodPortion = monthlyAverageSalary * EMPLOYEES_PENSION_ACCRUAL_RATE_POST_2003 * months;
+    totalEmployeesPortion += periodPortion;
+  }
+  
+  // Convert annual employees' pension portion to monthly
+  const monthlyEmployeesPortion = totalEmployeesPortion / 12;
+  
+  return nationalPension + monthlyEmployeesPortion;
+}
+
+/**
+ * Calculate 国民年金 (National Pension) from multiple income periods
+ * 
+ * For national pension, only the total years matter (not the income amounts)
+ * 
+ * @param incomePeriods - Array of income periods (only years are used)
+ * @returns Monthly pension amount in yen
+ */
+export function calcNationalPensionFromPeriods(
+  incomePeriods: IncomePeriod[]
+): number {
+  const totalYears = incomePeriods.reduce((sum, period) => sum + period.years, 0);
+  return calcNationalPension(totalYears);
 }
 
 /**

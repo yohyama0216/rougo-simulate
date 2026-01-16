@@ -4,8 +4,8 @@ import FormIncome from './components/FormIncome';
 import { 
   simulateAccumulation, 
   simulateWithdrawal,
-  calcEmployeesPension,
-  calcNationalPension
+  calcEmployeesPensionFromPeriods,
+  calcNationalPensionFromPeriods
 } from './lib/calc';
 import type {
   AccumulationParams,
@@ -71,44 +71,44 @@ function App() {
   // Income state
   const [incomeParams, setIncomeParams] = useState<IncomeParams>({
     householdType: 'single',
-    pensionInputMode: 'manual',
     pensionStartAge: 65, // Default pension start age
-    husbandPension: 150000,
-    wifePension: 0,
-    husbandAnnualSalary: 5000000, // Default: 5 million yen
-    husbandWorkingYears: 40,
-    wifeAnnualSalary: 3000000, // Default: 3 million yen
-    wifeWorkingYears: 40,
+    husbandIncomePeriods: [
+      { id: '1', annualSalary: 5000000, years: 40 } // Default: 5 million yen for 40 years
+    ],
+    wifeIncomePeriods: [
+      { id: '1', annualSalary: 3000000, years: 40 } // Default: 3 million yen for 40 years
+    ],
   });
 
   // Calculate income result using useMemo
   const incomeResult: IncomeResult = useMemo(() => {
-    let husbandPension = incomeParams.husbandPension;
-    let wifePension = incomeParams.wifePension;
+    let husbandPension = 0;
+    let wifePension = 0;
 
-    // If calculate mode, compute pension from income
-    if (incomeParams.pensionInputMode === 'calculate') {
-      // Calculate husband's pension (厚生年金 for all household types)
-      husbandPension = calcEmployeesPension(
-        incomeParams.husbandAnnualSalary,
-        incomeParams.husbandWorkingYears
+    // Calculate husband's pension from income periods (厚生年金 for all household types)
+    if (incomeParams.husbandIncomePeriods.length > 0) {
+      husbandPension = calcEmployeesPensionFromPeriods(
+        incomeParams.husbandIncomePeriods
       );
+    }
 
-      // Calculate wife's pension based on household type
-      if (incomeParams.householdType === 'dualIncome') {
-        // Wife also has employees' pension (共働き)
-        wifePension = calcEmployeesPension(
-          incomeParams.wifeAnnualSalary,
-          incomeParams.wifeWorkingYears
+    // Calculate wife's pension based on household type
+    if (incomeParams.householdType === 'dualIncome') {
+      // Wife also has employees' pension (共働き)
+      if (incomeParams.wifeIncomePeriods.length > 0) {
+        wifePension = calcEmployeesPensionFromPeriods(
+          incomeParams.wifeIncomePeriods
         );
-      } else if (incomeParams.householdType === 'partTime' || 
-                 incomeParams.householdType === 'selfEmployed') {
-        // Wife has national pension only
-        wifePension = calcNationalPension(incomeParams.wifeWorkingYears);
-      } else {
-        // Single household - no wife's pension
-        wifePension = 0;
       }
+    } else if (incomeParams.householdType === 'partTime' || 
+               incomeParams.householdType === 'selfEmployed') {
+      // Wife has national pension only
+      if (incomeParams.wifeIncomePeriods.length > 0) {
+        wifePension = calcNationalPensionFromPeriods(incomeParams.wifeIncomePeriods);
+      }
+    } else {
+      // Single household - no wife's pension
+      wifePension = 0;
     }
 
     const totalPension = husbandPension + wifePension;
