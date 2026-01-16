@@ -40,10 +40,18 @@ export interface WithdrawalYearlyData {
   endBalance: number;
 }
 
+export type HouseholdType = 'single' | 'dualIncome' | 'partTime' | 'selfEmployed';
+
 export interface IncomeParams {
-  pension: number; // monthly
+  householdType: HouseholdType;
+  husbandPension: number; // monthly - 夫の年金
+  wifePension: number; // monthly - 妻の年金
 }
 
 export interface IncomeResult {
   totalMonthlyIncome: number;
+  husbandPension: number;
+  wifePension: number;
+  totalPension: number;
+  withdrawal: number;
 }

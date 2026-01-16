@@ -38,7 +38,9 @@ function App() {
 
   // Income state
   const [incomeParams, setIncomeParams] = useState<IncomeParams>({
-    pension: 150000,
+    householdType: 'single',
+    husbandPension: 150000,
+    wifePension: 0,
   });
 
   // Calculate accumulation result using useMemo
@@ -64,9 +66,13 @@ function App() {
 
   // Calculate income result using useMemo
   const incomeResult: IncomeResult = useMemo(() => {
+    const totalPension = incomeParams.husbandPension + incomeParams.wifePension;
     return {
-      totalMonthlyIncome:
-        incomeParams.pension + withdrawalResult.monthlyWithdrawal,
+      totalMonthlyIncome: totalPension + withdrawalResult.monthlyWithdrawal,
+      husbandPension: incomeParams.husbandPension,
+      wifePension: incomeParams.wifePension,
+      totalPension,
+      withdrawal: withdrawalResult.monthlyWithdrawal,
     };
   }, [incomeParams, withdrawalResult.monthlyWithdrawal]);
 
@@ -135,12 +141,37 @@ function App() {
             <div className="card mt-4">
               <div className="card-body">
                 <h3 className="card-title h5 mb-3">内訳</h3>
-                <div className="d-flex justify-content-between align-items-center py-2">
-                  <span>公的年金（月額）:</span>
-                  <span className="fw-bold text-primary">
-                    ¥{incomeParams.pension.toLocaleString('ja-JP')}
-                  </span>
-                </div>
+                {incomeParams.householdType === 'single' ? (
+                  <>
+                    <div className="d-flex justify-content-between align-items-center py-2">
+                      <span>夫の年金（月額）:</span>
+                      <span className="fw-bold text-primary">
+                        ¥{incomeParams.husbandPension.toLocaleString('ja-JP')}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="d-flex justify-content-between align-items-center py-2">
+                      <span>夫の年金（月額）:</span>
+                      <span className="fw-bold text-primary">
+                        ¥{incomeParams.husbandPension.toLocaleString('ja-JP')}
+                      </span>
+                    </div>
+                    <div className="d-flex justify-content-between align-items-center py-2">
+                      <span>妻の年金（月額）:</span>
+                      <span className="fw-bold text-primary">
+                        ¥{incomeParams.wifePension.toLocaleString('ja-JP')}
+                      </span>
+                    </div>
+                    <div className="d-flex justify-content-between align-items-center py-2 border-top pt-2">
+                      <span>年金合計（月額）:</span>
+                      <span className="fw-bold text-success">
+                        ¥{incomeResult.totalPension.toLocaleString('ja-JP')}
+                      </span>
+                    </div>
+                  </>
+                )}
                 <div className="d-flex justify-content-between align-items-center py-2">
                   <span>取り崩し（月額）:</span>
                   <span className="fw-bold text-primary">
