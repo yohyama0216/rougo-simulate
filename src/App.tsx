@@ -33,6 +33,9 @@ function App() {
       housingLoanInterestRate: 1.5,
       housingLoanYears: 35,
       housingLoanStartYear: 1,
+      hasNisaWithdrawal: false,
+      nisaWithdrawalMonthly: 50000,
+      nisaWithdrawalStartYear: 10,
     });
 
   // Withdrawal state

@@ -43,7 +43,7 @@ export function calcHousingLoanPayment(
 }
 
 /**
- * Simulate NISA accumulation with housing loan
+ * Simulate NISA accumulation with housing loan and NISA withdrawal
  */
 export function simulateAccumulation(
   params: AccumulationParams
@@ -61,6 +61,9 @@ export function simulateAccumulation(
     housingLoanInterestRate,
     housingLoanYears,
     housingLoanStartYear,
+    hasNisaWithdrawal,
+    nisaWithdrawalMonthly,
+    nisaWithdrawalStartYear,
   } = params;
 
   // Calculate net annual return
@@ -90,6 +93,11 @@ export function simulateAccumulation(
     ? loanStartMonth + housingLoanYears * 12
     : 0;
 
+  // NISA withdrawal start month
+  const nisaWithdrawalStartMonth = hasNisaWithdrawal
+    ? (nisaWithdrawalStartYear - 1) * 12 + 1
+    : 0;
+
   let balance = initialAsset;
   let totalContribution = initialAsset;
   const yearlyData: YearlyData[] = [];
@@ -102,6 +110,11 @@ export function simulateAccumulation(
     // Deduct housing loan payment if in loan period
     if (hasHousingLoan && month >= loanStartMonth && month < loanEndMonth) {
       balance -= monthlyLoanPayment;
+    }
+
+    // Deduct NISA withdrawal if in withdrawal period
+    if (hasNisaWithdrawal && month >= nisaWithdrawalStartMonth) {
+      balance -= nisaWithdrawalMonthly;
     }
 
     // Record yearly data

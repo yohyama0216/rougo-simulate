@@ -191,6 +191,53 @@ export default function FormAccumulation({
             </>
           )}
         </div>
+
+        <div className="border-top pt-3 mt-4">
+          <div className="form-check mb-3">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="hasNisaWithdrawal"
+              checked={params.hasNisaWithdrawal}
+              onChange={(e) => handleChange('hasNisaWithdrawal', e.target.checked)}
+            />
+            <label className="form-check-label fw-semibold" htmlFor="hasNisaWithdrawal">
+              途中からNISAを取り崩す
+            </label>
+          </div>
+
+          {params.hasNisaWithdrawal && (
+            <>
+              <div className="mb-3">
+                <label className="form-label">毎月の取り崩し額（円/月）</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={params.nisaWithdrawalMonthly}
+                  onChange={(e) => handleChange('nisaWithdrawalMonthly', e.target.value)}
+                  min="0"
+                  step="10000"
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">取り崩し開始年（積立開始からの年数）</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={params.nisaWithdrawalStartYear}
+                  onChange={(e) => handleChange('nisaWithdrawalStartYear', e.target.value)}
+                  min="1"
+                  max={params.years}
+                  step="1"
+                />
+                <small className="form-text text-muted">
+                  積立開始から何年目に取り崩しを開始するか
+                </small>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

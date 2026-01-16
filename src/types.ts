@@ -13,6 +13,10 @@ export interface AccumulationParams {
   housingLoanInterestRate: number; // %
   housingLoanYears: number;
   housingLoanStartYear: number; // Year when loan starts (1-based)
+  // NISA withdrawal during accumulation
+  hasNisaWithdrawal: boolean;
+  nisaWithdrawalMonthly: number; // Monthly withdrawal amount
+  nisaWithdrawalStartYear: number; // Year when withdrawal starts (1-based)
 }
 
 export interface AccumulationResult {
