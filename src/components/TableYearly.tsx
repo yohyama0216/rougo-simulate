@@ -14,10 +14,10 @@ export default function TableYearly({
 }: TableYearlyProps) {
   if (activeTab === 0 && accumulationData.length > 0) {
     return (
-      <div className="mt-4">
-        <h3 className="h5 mb-3">年別推移</h3>
+      <div className="mt-3">
+        <h3 className="h6 mb-2">年別推移</h3>
         <div className="table-responsive border rounded">
-          <table className="table table-striped mb-0">
+          <table className="table table-sm table-striped mb-0">
             <thead className="table-light">
               <tr>
                 <th>年</th>
@@ -44,10 +44,10 @@ export default function TableYearly({
 
   if (activeTab === 1 && withdrawalData.length > 0) {
     return (
-      <div className="mt-4">
-        <h3 className="h5 mb-3">年別残高推移</h3>
+      <div className="mt-3">
+        <h3 className="h6 mb-2">年別残高推移</h3>
         <div className="table-responsive border rounded">
-          <table className="table table-striped mb-0">
+          <table className="table table-sm table-striped mb-0">
             <thead className="table-light">
               <tr>
                 <th>年</th>

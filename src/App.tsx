@@ -132,14 +132,14 @@ function App() {
 
   return (
     <div className="min-vh-100 bg-light">
-      <header className="text-white text-center py-5" style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}}>
-        <h1 className="display-4 fw-bold mb-2">老後資金シミュレーター</h1>
-        <p className="lead mb-0">
+      <header className="text-white text-center py-3" style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}}>
+        <h1 className="h3 fw-bold mb-1">老後資金シミュレーター</h1>
+        <p className="mb-0 small">
           NISA積立 + 老後取り崩し + 月収計算
         </p>
       </header>
 
-      <main className="container py-4" style={{maxWidth: '1200px'}}>
+      <main className="container py-3" style={{maxWidth: '1200px'}}>
         <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
 
         {activeTab === 0 && (
@@ -192,12 +192,12 @@ function App() {
               withdrawalResult={withdrawalResult}
               incomeResult={incomeResult}
             />
-            <div className="card mt-4">
-              <div className="card-body">
-                <h3 className="card-title h5 mb-3">内訳</h3>
+            <div className="card mt-3">
+              <div className="card-body py-2">
+                <h3 className="card-title h6 mb-2">内訳</h3>
                 {incomeParams.householdType === 'single' ? (
                   <>
-                    <div className="d-flex justify-content-between align-items-center py-2">
+                    <div className="d-flex justify-content-between align-items-center py-1">
                       <span>夫の年金（月額）:</span>
                       <span className="fw-bold text-primary">
                         ¥{incomeResult.husbandPension.toLocaleString('ja-JP', {
@@ -208,7 +208,7 @@ function App() {
                   </>
                 ) : (
                   <>
-                    <div className="d-flex justify-content-between align-items-center py-2">
+                    <div className="d-flex justify-content-between align-items-center py-1">
                       <span>夫の年金（月額）:</span>
                       <span className="fw-bold text-primary">
                         ¥{incomeResult.husbandPension.toLocaleString('ja-JP', {
@@ -216,7 +216,7 @@ function App() {
                         })}
                       </span>
                     </div>
-                    <div className="d-flex justify-content-between align-items-center py-2">
+                    <div className="d-flex justify-content-between align-items-center py-1">
                       <span>妻の年金（月額）:</span>
                       <span className="fw-bold text-primary">
                         ¥{incomeResult.wifePension.toLocaleString('ja-JP', {
@@ -224,7 +224,7 @@ function App() {
                         })}
                       </span>
                     </div>
-                    <div className="d-flex justify-content-between align-items-center py-2 border-top pt-2">
+                    <div className="d-flex justify-content-between align-items-center py-1 border-top pt-1">
                       <span>年金合計（月額）:</span>
                       <span className="fw-bold text-success">
                         ¥{incomeResult.totalPension.toLocaleString('ja-JP', {
@@ -234,7 +234,7 @@ function App() {
                     </div>
                   </>
                 )}
-                <div className="d-flex justify-content-between align-items-center py-2">
+                <div className="d-flex justify-content-between align-items-center py-1">
                   <span>取り崩し（月額）:</span>
                   <span className="fw-bold text-primary">
                     ¥
@@ -249,7 +249,7 @@ function App() {
         )}
       </main>
 
-      <footer className="bg-dark text-white text-center py-3 mt-auto">
+      <footer className="bg-dark text-white text-center py-2 mt-auto">
         <p className="mb-0 small opacity-75">
           ※このシミュレーターは参考値です。実際の運用成果を保証するものではありません。
         </p>
