@@ -147,7 +147,7 @@ export default function FormWithdrawal({
 
           {params.hasElderCare && (
             <div className="row g-2">
-              <div className="col-md-4">
+              <div className="col-md-4 mb-2">
                 <label className="form-label">介護を受ける方</label>
                 <select
                   className="form-select form-select-sm"
@@ -160,7 +160,7 @@ export default function FormWithdrawal({
                 </select>
               </div>
 
-              <div className="col-md-4">
+              <div className="col-md-4 mb-2">
                 <label className="form-label">月額介護費用（円）</label>
                 <input
                   type="number"
@@ -175,7 +175,7 @@ export default function FormWithdrawal({
                 </small>
               </div>
 
-              <div className="col-md-4">
+              <div className="col-md-4 mb-2">
                 <label className="form-label">介護開始年齢</label>
                 <input
                   type="number"
