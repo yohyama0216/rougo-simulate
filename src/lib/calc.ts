@@ -7,12 +7,78 @@ import type {
   WithdrawalYearlyData,
 } from '../types';
 
+// Pension calculation constants (2024年度)
+const NATIONAL_PENSION_FULL_ANNUAL_AMOUNT = 816000; // 国民年金満額（年額、40年加入）
+const NATIONAL_PENSION_MAX_YEARS = 40; // 国民年金の最大加入年数
+const EMPLOYEES_PENSION_ACCRUAL_RATE_POST_2003 = 0.005481; // 厚生年金給付乗率（2003年4月以降）
+
 /**
  * Convert annual rate to monthly rate
  * Formula: (1 + annualRate)^(1/12) - 1
  */
 export function annualToMonthlyRate(annualRate: number): number {
   return Math.pow(1 + annualRate / 100, 1 / 12) - 1;
+}
+
+/**
+ * Calculate 国民年金 (National Pension) - Basic Pension
+ * 
+ * For 2024, the full amount is approximately ¥816,000 per year (¥68,000 per month)
+ * This assumes 40 years of contributions (age 20-60)
+ * 
+ * Formula: Full amount if contributed for 40 years
+ * If working years < 40, it's proportional: (years / 40) * full amount
+ * 
+ * @param workingYears - Number of years contributing to the pension (default: 40)
+ * @returns Monthly pension amount in yen
+ */
+export function calcNationalPension(workingYears: number = 40): number {
+  const years = Math.min(workingYears, NATIONAL_PENSION_MAX_YEARS);
+  const annualPension = (years / NATIONAL_PENSION_MAX_YEARS) * NATIONAL_PENSION_FULL_ANNUAL_AMOUNT;
+  
+  return annualPension / 12; // Return monthly amount
+}
+
+/**
+ * Calculate 厚生年金 (Employees' Pension Insurance)
+ * 
+ * Employees' Pension = National Pension (base) + Employees' portion
+ * 
+ * Simplified formula based on average annual income:
+ * Annual pension = Average monthly salary × 0.005481 × months of enrollment
+ * Monthly pension = Annual pension / 12 + National Pension
+ * 
+ * The 0.005481 is the accrual rate (給付乗率) for post-2003 earnings
+ * 
+ * This is a simplified calculation. Actual pension may vary based on:
+ * - Exact salary history each year
+ * - Revaluation rates applied to past earnings
+ * - Changes in pension system rules
+ * 
+ * @param averageAnnualSalary - Average annual salary during working years (税込年収)
+ * @param workingYears - Number of years contributing to employees' pension (default: 40)
+ * @returns Monthly pension amount in yen
+ */
+export function calcEmployeesPension(
+  averageAnnualSalary: number,
+  workingYears: number = 40
+): number {
+  // Base: National Pension (基礎年金)
+  const nationalPension = calcNationalPension(workingYears);
+  
+  // Employees' pension portion (報酬比例部分)
+  const workingMonths = workingYears * 12;
+  
+  // Average monthly salary (standard monthly remuneration)
+  const monthlyAverageSalary = averageAnnualSalary / 12;
+  
+  // Annual employees' pension portion = average monthly salary × accrual rate × months
+  const annualEmployeesPortion = monthlyAverageSalary * EMPLOYEES_PENSION_ACCRUAL_RATE_POST_2003 * workingMonths;
+  
+  // Convert to monthly amount and add national pension
+  const monthlyEmployeesPortion = annualEmployeesPortion / 12;
+  
+  return nationalPension + monthlyEmployeesPortion;
 }
 
 /**

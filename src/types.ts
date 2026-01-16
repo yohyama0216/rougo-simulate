@@ -63,10 +63,19 @@ export interface WithdrawalYearlyData {
 
 export type HouseholdType = 'single' | 'dualIncome' | 'partTime' | 'selfEmployed';
 
+export type PensionInputMode = 'manual' | 'calculate';
+
 export interface IncomeParams {
   householdType: HouseholdType;
+  pensionInputMode: PensionInputMode; // manual input or calculate from income
+  // Manual pension input
   husbandPension: number; // monthly - 夫の年金
   wifePension: number; // monthly - 妻の年金
+  // Calculate from current income
+  husbandAnnualSalary: number; // 夫の年収（税込）
+  husbandWorkingYears: number; // 夫の勤務年数
+  wifeAnnualSalary: number; // 妻の年収（税込）
+  wifeWorkingYears: number; // 妻の勤務年数
 }
 
 export interface IncomeResult {
