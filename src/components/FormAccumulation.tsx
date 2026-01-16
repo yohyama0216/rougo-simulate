@@ -35,7 +35,7 @@ export default function FormAccumulation({
           <i className="bi bi-piggy-bank-fill me-2"></i>積立シミュレーション（NISA）
         </h2>
 
-        <div className="row g-1">
+        <div className="row g-2">
           <div className="col-md-6">
             <label className="form-label fw-semibold small text-secondary">現在の西暦</label>
             <input
