@@ -80,7 +80,7 @@ export default function FormIncome({ params, onChange }: FormIncomeProps) {
             <label className="form-label fw-semibold">年金開始年齢</label>
             <input
               type="number"
-              className="form-select form-select-sm"
+              className="form-control form-control-sm"
               value={params.pensionStartAge}
               onChange={(e) => handleChange('pensionStartAge', e.target.value)}
               min="60"

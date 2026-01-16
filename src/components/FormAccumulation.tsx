@@ -17,9 +17,13 @@ export default function FormAccumulation({
       });
     } else {
       const numValue = parseFloat(value) || 0;
+      // Don't apply Math.max(0) to year fields - they should accept any valid year
+      const finalValue = (field === 'currentYear' || field === 'withdrawalStartYear') 
+        ? numValue 
+        : Math.max(0, numValue);
       onChange({
         ...params,
-        [field]: Math.max(0, numValue),
+        [field]: finalValue,
       });
     }
   };
