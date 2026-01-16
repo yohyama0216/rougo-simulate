@@ -31,6 +31,34 @@ export default function FormAccumulation({
 
         <div className="row g-1">
           <div className="col-md-6">
+            <label className="form-label fw-semibold">現在の西暦</label>
+            <input
+              type="number"
+              className="form-control form-control-sm"
+              value={params.currentYear}
+              onChange={(e) => handleChange('currentYear', e.target.value)}
+              min="2020"
+              max="2100"
+              step="1"
+            />
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label fw-semibold">取り崩し開始年</label>
+            <input
+              type="number"
+              className="form-control form-control-sm"
+              value={params.withdrawalStartYear}
+              onChange={(e) => handleChange('withdrawalStartYear', e.target.value)}
+              min={params.currentYear}
+              max="2150"
+              step="1"
+            />
+          </div>
+        </div>
+
+        <div className="row g-1 mt-1">
+          <div className="col-md-6">
             <label className="form-label fw-semibold">初期資産（円）</label>
             <input
               type="number"
@@ -59,11 +87,13 @@ export default function FormAccumulation({
             <input
               type="number"
               className="form-control form-control-sm"
-              value={params.years}
-              onChange={(e) => handleChange('years', e.target.value)}
-              min="1"
-              step="1"
+              value={Math.max(1, params.withdrawalStartYear - params.currentYear)}
+              readOnly
+              disabled
             />
+            <small className="form-text text-muted">
+              {params.currentYear}年〜{params.withdrawalStartYear}年（自動計算）
+            </small>
           </div>
 
           <div className="col-md-4">

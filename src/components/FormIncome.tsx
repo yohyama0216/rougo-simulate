@@ -62,7 +62,7 @@ export default function FormIncome({ params, onChange }: FormIncomeProps) {
         <h2 className="h5 mb-2">老後の月収</h2>
 
         <div className="row g-1 mb-2">
-          <div className="col-md-6">
+          <div className="col-md-4">
             <label className="form-label fw-semibold">世帯タイプ</label>
             <select
               className="form-select form-select-sm"
@@ -76,7 +76,20 @@ export default function FormIncome({ params, onChange }: FormIncomeProps) {
             </select>
           </div>
 
-          <div className="col-md-6">
+          <div className="col-md-4">
+            <label className="form-label fw-semibold">年金開始年齢</label>
+            <input
+              type="number"
+              className="form-select form-select-sm"
+              value={params.pensionStartAge}
+              onChange={(e) => handleChange('pensionStartAge', e.target.value)}
+              min="60"
+              max="75"
+              step="1"
+            />
+          </div>
+
+          <div className="col-md-4">
             <label className="form-label fw-semibold">年金の入力方法</label>
             <select
               className="form-select form-select-sm"
