@@ -7,6 +7,11 @@ import type {
   WithdrawalYearlyData,
 } from '../types';
 
+// Pension calculation constants (2024年度)
+const NATIONAL_PENSION_FULL_ANNUAL_AMOUNT = 816000; // 国民年金満額（年額、40年加入）
+const NATIONAL_PENSION_MAX_YEARS = 40; // 国民年金の最大加入年数
+const EMPLOYEES_PENSION_ACCRUAL_RATE_POST_2003 = 0.005481; // 厚生年金給付乗率（2003年4月以降）
+
 /**
  * Convert annual rate to monthly rate
  * Formula: (1 + annualRate)^(1/12) - 1
@@ -28,12 +33,8 @@ export function annualToMonthlyRate(annualRate: number): number {
  * @returns Monthly pension amount in yen
  */
 export function calcNationalPension(workingYears: number = 40): number {
-  // 2024年度の満額（40年間納付）
-  const FULL_ANNUAL_AMOUNT = 816000; // 年額
-  const MAX_YEARS = 40;
-  
-  const years = Math.min(workingYears, MAX_YEARS);
-  const annualPension = (years / MAX_YEARS) * FULL_ANNUAL_AMOUNT;
+  const years = Math.min(workingYears, NATIONAL_PENSION_MAX_YEARS);
+  const annualPension = (years / NATIONAL_PENSION_MAX_YEARS) * NATIONAL_PENSION_FULL_ANNUAL_AMOUNT;
   
   return annualPension / 12; // Return monthly amount
 }
@@ -66,15 +67,13 @@ export function calcEmployeesPension(
   const nationalPension = calcNationalPension(workingYears);
   
   // Employees' pension portion (報酬比例部分)
-  // 給付乗率 (accrual rate) for earnings after April 2003
-  const ACCRUAL_RATE = 0.005481;
   const workingMonths = workingYears * 12;
   
   // Average monthly salary (standard monthly remuneration)
   const monthlyAverageSalary = averageAnnualSalary / 12;
   
   // Annual employees' pension portion = average monthly salary × accrual rate × months
-  const annualEmployeesPortion = monthlyAverageSalary * ACCRUAL_RATE * workingMonths;
+  const annualEmployeesPortion = monthlyAverageSalary * EMPLOYEES_PENSION_ACCRUAL_RATE_POST_2003 * workingMonths;
   
   // Convert to monthly amount and add national pension
   const monthlyEmployeesPortion = annualEmployeesPortion / 12;

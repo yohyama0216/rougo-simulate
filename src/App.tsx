@@ -97,27 +97,25 @@ function App() {
 
     // If calculate mode, compute pension from income
     if (incomeParams.pensionInputMode === 'calculate') {
-      // Calculate husband's pension based on household type
-      if (incomeParams.householdType === 'single' || 
-          incomeParams.householdType === 'dualIncome' ||
-          incomeParams.householdType === 'partTime' ||
-          incomeParams.householdType === 'selfEmployed') {
-        husbandPension = calcEmployeesPension(
-          incomeParams.husbandAnnualSalary,
-          incomeParams.husbandWorkingYears
-        );
-      }
+      // Calculate husband's pension (厚生年金 for all household types)
+      husbandPension = calcEmployeesPension(
+        incomeParams.husbandAnnualSalary,
+        incomeParams.husbandWorkingYears
+      );
 
       // Calculate wife's pension based on household type
       if (incomeParams.householdType === 'dualIncome') {
+        // Wife also has employees' pension (共働き)
         wifePension = calcEmployeesPension(
           incomeParams.wifeAnnualSalary,
           incomeParams.wifeWorkingYears
         );
       } else if (incomeParams.householdType === 'partTime' || 
                  incomeParams.householdType === 'selfEmployed') {
+        // Wife has national pension only
         wifePension = calcNationalPension(incomeParams.wifeWorkingYears);
       } else {
+        // Single household - no wife's pension
         wifePension = 0;
       }
     }

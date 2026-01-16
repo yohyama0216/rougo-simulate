@@ -5,12 +5,18 @@ interface FormIncomeProps {
   onChange: (params: IncomeParams) => void;
 }
 
+// Fields that should be treated as strings (not converted to numbers)
+const STRING_FIELDS = new Set<keyof IncomeParams>(['householdType', 'pensionInputMode']);
+
 export default function FormIncome({ params, onChange }: FormIncomeProps) {
   const handleChange = (field: keyof IncomeParams, value: string | number) => {
-    const numValue = typeof value === 'string' ? (parseFloat(value) || 0) : value;
+    const processedValue = STRING_FIELDS.has(field)
+      ? value
+      : Math.max(0, typeof value === 'string' ? (parseFloat(value) || 0) : value);
+    
     onChange({
       ...params,
-      [field]: field === 'householdType' || field === 'pensionInputMode' ? value : Math.max(0, numValue),
+      [field]: processedValue,
     });
   };
 
