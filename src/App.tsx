@@ -1,6 +1,10 @@
 import { useState, useMemo } from 'react';
 import FormAccumulation from './components/FormAccumulation';
 import FormIncome from './components/FormIncome';
+import PresetSelector from './components/PresetSelector';
+import StepWizard, { type WizardStep } from './components/StepWizard';
+import EnhancedResultSummary from './components/EnhancedResultSummary';
+import { applyPreset, type PresetConfig } from './presets';
 import { 
   simulateAccumulation, 
   simulateWithdrawal,
@@ -17,6 +21,9 @@ import type {
 } from './types';
 
 function App() {
+  // Wizard state
+  const [currentStep, setCurrentStep] = useState<WizardStep>('preset');
+  const [hasUsedPreset, setHasUsedPreset] = useState(false);
   // Accumulation state
   const [accumulationParams, setAccumulationParams] =
     useState<AccumulationParams>({
@@ -121,6 +128,40 @@ function App() {
     };
   }, [incomeParams, withdrawalResult.monthlyWithdrawal]);
 
+  // Handle preset selection
+  const handlePresetSelect = (preset: PresetConfig) => {
+    const applied = applyPreset(accumulationParams, incomeParams, preset);
+    setAccumulationParams(applied.accumulation);
+    setIncomeParams(applied.income);
+    setHasUsedPreset(true);
+    setCurrentStep('accumulation');
+  };
+
+  // Handle skip preset
+  const handleSkipPreset = () => {
+    setCurrentStep('accumulation');
+  };
+
+  // Navigation helpers
+  const goToNextStep = () => {
+    const steps: WizardStep[] = ['preset', 'accumulation', 'income', 'result'];
+    const currentIndex = steps.indexOf(currentStep);
+    if (currentIndex < steps.length - 1) {
+      setCurrentStep(steps[currentIndex + 1]);
+    }
+  };
+
+  const goToPrevStep = () => {
+    const steps: WizardStep[] = ['preset', 'accumulation', 'income', 'result'];
+    const currentIndex = steps.indexOf(currentStep);
+    if (currentIndex > 0) {
+      setCurrentStep(steps[currentIndex - 1]);
+    }
+  };
+
+  // Check if we should show wizard
+  const showWizard = currentStep !== 'result' || hasUsedPreset;
+
   return (
     <div className="min-vh-100 bg-light">
       <header className="text-white text-center py-3" style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}}>
@@ -130,146 +171,133 @@ function App() {
         </p>
       </header>
 
-      <main className="container-fluid py-3" style={{maxWidth: '1000px'}}>
-        <div className="row g-2">
-          {/* Left Column: NISA Accumulation */}
-          <div className="col-lg-6">
-            <div className="card h-100">
-              <div className="card-body p-2">
-                <FormAccumulation
-                  params={accumulationParams}
-                  onChange={setAccumulationParams}
-                />
-                <div className="mt-2">
-                  <div className="bg-light p-2 rounded">
-                    <h3 className="h6 mb-2">積立結果</h3>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <span className="small">最終資産:</span>
-                      <span className="fw-bold text-primary">
-                        ¥{accumulationResult.finalAsset.toLocaleString('ja-JP', {
-                          maximumFractionDigits: 0,
-                        })}
-                      </span>
-                    </div>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <span className="small">元本合計:</span>
-                      <span className="text-muted">
-                        ¥{accumulationResult.totalContribution.toLocaleString('ja-JP', {
-                          maximumFractionDigits: 0,
-                        })}
-                      </span>
-                    </div>
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span className="small">運用益:</span>
-                      <span className="text-success">
-                        ¥{accumulationResult.totalGain.toLocaleString('ja-JP', {
-                          maximumFractionDigits: 0,
-                        })}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      <main className="container-fluid py-3" style={{maxWidth: '1200px'}}>
+        {/* Step Wizard */}
+        {showWizard && (
+          <StepWizard currentStep={currentStep} onStepChange={setCurrentStep} />
+        )}
 
-          {/* Right Column: Pension Calculation */}
-          <div className="col-lg-6">
-            <div className="card h-100">
-              <div className="card-body p-2">
-                <FormIncome params={incomeParams} onChange={setIncomeParams} />
-                <div className="mt-2">
-                  <div className="bg-light p-2 rounded shadow-sm" style={{ border: '1px solid #e0e7ff' }}>
-                    <h3 className="h6 mb-2 fw-bold" style={{ color: '#667eea' }}>
-                      <i className="bi bi-clipboard-data me-1"></i>年金結果
-                    </h3>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <span className="small">年金開始年齢:</span>
-                      <span className="text-muted">{incomeParams.pensionStartAge}歳</span>
-                    </div>
-                    {incomeParams.householdType === 'single' ? (
-                      <div className="d-flex justify-content-between align-items-center mb-1">
-                        <span className="small">夫の年金（月額）:</span>
-                        <span className="fw-bold text-primary">
-                          ¥{incomeResult.husbandPension.toLocaleString('ja-JP', {
-                            maximumFractionDigits: 0,
-                          })}
-                        </span>
+        {/* Preset Selection Step */}
+        {currentStep === 'preset' && (
+          <PresetSelector
+            onSelectPreset={handlePresetSelect}
+            onSkip={handleSkipPreset}
+          />
+        )}
+
+        {/* Accumulation Step */}
+        {currentStep === 'accumulation' && (
+          <div className="card shadow-sm">
+            <div className="card-body p-3">
+              <FormAccumulation
+                params={accumulationParams}
+                onChange={setAccumulationParams}
+              />
+              <div className="mt-3">
+                <div className="bg-light p-3 rounded shadow-sm" style={{ border: '1px solid #e0e7ff' }}>
+                  <h3 className="h6 mb-2 fw-bold" style={{ color: '#667eea' }}>
+                    <i className="bi bi-graph-up me-1"></i>積立結果プレビュー
+                  </h3>
+                  <div className="row g-2">
+                    <div className="col-md-4">
+                      <div className="small text-muted">最終資産</div>
+                      <div className="h5 fw-bold text-primary mb-0">
+                        ¥{(accumulationResult.finalAsset / 10000).toFixed(0)}万円
                       </div>
-                    ) : (
-                      <>
-                        <div className="d-flex justify-content-between align-items-center mb-1">
-                          <span className="small">夫の年金（月額）:</span>
-                          <span className="text-muted">
-                            ¥{incomeResult.husbandPension.toLocaleString('ja-JP', {
-                              maximumFractionDigits: 0,
-                            })}
-                          </span>
-                        </div>
-                        <div className="d-flex justify-content-between align-items-center mb-1">
-                          <span className="small">妻の年金（月額）:</span>
-                          <span className="text-muted">
-                            ¥{incomeResult.wifePension.toLocaleString('ja-JP', {
-                              maximumFractionDigits: 0,
-                            })}
-                          </span>
-                        </div>
-                        <div className="d-flex justify-content-between align-items-center border-top pt-1">
-                          <span className="small">年金合計（月額）:</span>
-                          <span className="fw-bold text-primary">
-                            ¥{incomeResult.totalPension.toLocaleString('ja-JP', {
-                              maximumFractionDigits: 0,
-                            })}
-                          </span>
-                        </div>
-                      </>
-                    )}
+                    </div>
+                    <div className="col-md-4">
+                      <div className="small text-muted">元本合計</div>
+                      <div className="h6 text-muted mb-0">
+                        ¥{(accumulationResult.totalContribution / 10000).toFixed(0)}万円
+                      </div>
+                    </div>
+                    <div className="col-md-4">
+                      <div className="small text-muted">運用益</div>
+                      <div className="h6 text-success mb-0">
+                        ¥{(accumulationResult.totalGain / 10000).toFixed(0)}万円
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
+              <div className="d-flex gap-2 justify-content-between mt-3">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={goToPrevStep}
+                >
+                  <i className="bi bi-arrow-left me-2"></i>戻る
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={goToNextStep}
+                  style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none' }}
+                >
+                  次へ：年金設定<i className="bi bi-arrow-right ms-2"></i>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Total Amount at Bottom Center */}
-        <div className="row mt-2">
-          <div className="col-12">
-            <div className="card text-white text-center shadow-lg" style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none'}}>
-              <div className="card-body py-3">
-                <h2 className="h5 mb-2 fw-bold">
-                  <i className="bi bi-piggy-bank me-2"></i>年金目安額（月額）
-                </h2>
-                <div className="display-5 fw-bold mb-2">
-                  ¥{incomeResult.totalMonthlyIncome.toLocaleString('ja-JP', {
-                    maximumFractionDigits: 0,
-                  })}
-                </div>
-                <div className="mt-2 small opacity-90" style={{ fontSize: '0.9em' }}>
-                  <span className="badge bg-white text-primary me-2 px-3 py-2" style={{ fontSize: '0.85em' }}>
-                    <i className="bi bi-wallet2 me-1"></i>
-                    年金 ¥{incomeResult.totalPension.toLocaleString('ja-JP', { maximumFractionDigits: 0 })}
-                  </span>
-                  <span className="mx-1">+</span>
-                  <span className="badge bg-white text-success px-3 py-2" style={{ fontSize: '0.85em' }}>
-                    <i className="bi bi-graph-up me-1"></i>
-                    取り崩し ¥{withdrawalResult.monthlyWithdrawal.toLocaleString('ja-JP', { maximumFractionDigits: 0 })}
-                  </span>
-                </div>
-                <div className="mt-2 small opacity-90">
-                  <div className="badge bg-white bg-opacity-75 text-dark px-3 py-2" style={{ fontSize: '0.85em' }}>
-                    <i className="bi bi-clock-history me-1"></i>
-                    資産は約{withdrawalResult.yearsUntilDepletion.toFixed(1)}年持続
-                    {withdrawalResult.depletionAge < withdrawalParams.endAge ? (
-                      <span className="ms-1">({Math.floor(withdrawalResult.depletionAge)}歳まで)</span>
-                    ) : (
-                      <span className="ms-1">({withdrawalParams.endAge}歳以降も継続)</span>
-                    )}
+        {/* Income Step */}
+        {currentStep === 'income' && (
+          <div className="card shadow-sm">
+            <div className="card-body p-3">
+              <FormIncome params={incomeParams} onChange={setIncomeParams} />
+              <div className="mt-3">
+                <div className="bg-light p-3 rounded shadow-sm" style={{ border: '1px solid #e0e7ff' }}>
+                  <h3 className="h6 mb-2 fw-bold" style={{ color: '#667eea' }}>
+                    <i className="bi bi-clipboard-data me-1"></i>年金結果プレビュー
+                  </h3>
+                  <div className="row g-2">
+                    <div className="col-md-6">
+                      <div className="small text-muted">年金合計（月額）</div>
+                      <div className="h5 fw-bold text-primary mb-0">
+                        ¥{incomeResult.totalPension.toLocaleString('ja-JP', { maximumFractionDigits: 0 })}
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="small text-muted">年金開始年齢</div>
+                      <div className="h6 text-muted mb-0">
+                        {incomeParams.pensionStartAge}歳
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
+              <div className="d-flex gap-2 justify-content-between mt-3">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={goToPrevStep}
+                >
+                  <i className="bi bi-arrow-left me-2"></i>戻る
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => setCurrentStep('result')}
+                  style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none' }}
+                >
+                  結果を見る<i className="bi bi-bar-chart-fill ms-2"></i>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Result Step */}
+        {currentStep === 'result' && (
+          <EnhancedResultSummary
+            accumulationResult={accumulationResult}
+            withdrawalResult={withdrawalResult}
+            incomeResult={incomeResult}
+            withdrawalParams={withdrawalParams}
+            onEdit={() => setCurrentStep('accumulation')}
+          />
+        )}
       </main>
 
       <footer className="bg-dark text-white text-center py-2 mt-auto">
