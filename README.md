@@ -225,14 +225,20 @@ npm run lint
 
 このプロジェクトは GitHub Pages に自動デプロイされます。
 
+#### 🚨 重要：初回セットアップが必要です
+
+**デプロイエラーが発生する場合は、[GitHub Pages セットアップガイド](./GITHUB_PAGES_SETUP.md) を必ずお読みください。**
+
 #### 初回セットアップ（リポジトリ管理者向け）
 
 GitHub Pages を有効にするには、以下の手順を実行してください：
 
 1. リポジトリの **Settings** → **Pages** に移動
 2. "Build and deployment" セクションで：
-   - **Source**: "GitHub Actions" を選択
+   - **Source**: **"GitHub Actions"** を選択（"Deploy from a branch" ではありません）
 3. 設定を保存
+
+詳細な手順とトラブルシューティングは **[GITHUB_PAGES_SETUP.md](./GITHUB_PAGES_SETUP.md)** を参照してください。
 
 #### 自動デプロイの仕組み
 
@@ -247,7 +253,8 @@ GitHub Pages を有効にするには、以下の手順を実行してくださ�
 
 **エラー: "Failed to create deployment (status: 404)"**
 
-このエラーが表示される場合、GitHub Pages が有効になっていない可能性があります。上記の初回セットアップ手順を実行してください。
+このエラーが表示される場合、GitHub Pages が有効になっていません。
+**[GITHUB_PAGES_SETUP.md](./GITHUB_PAGES_SETUP.md) の詳細な手順に従ってセットアップしてください。**
 
 ---
 
